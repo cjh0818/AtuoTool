@@ -176,41 +176,27 @@ model:
         param:
           file_path: "C:/Users/admin/Downloads/Sandboxie.exe"
 
+      - position: "images/win_10/run_sample/run_btn.png"
+        description: 判断是否有安全告警弹窗
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/win_10/run_sample/run_btn.png"
+              description: 点击【运行】按钮
+              action: click
+              click_button: left
+              click_offset: [0, 0]
+
       - position: ""
         description: 自动化安装程序
         action: auto_install
-        max_retries: 60
+        max_retries: 15
         interval: 2.0
         finish_keywords: ["finish", "完成"]
 
     res_process:
       - position: ""
         description: 查看文件运行是否成功
-        action: res
-        type: "image"
-
-
-  - name: test
-    process:
-      - position: "images/win_10/run_sample/cancel_btn.png"
-        description: 识别【cancel】按钮
-        action: click
-        click_button: left
-
-      - position: "images/win_10/run_sample/next1_btn.png"
-        description: 识别【next1】按钮
-        action: recognize
-        step: continue
-        branch:
-          success:
-            - position: "images/win_10/run_sample/next1_btn.png"
-              description: 点击【finish】按钮
-              action: click
-              click_button: left
-              click_offset: [0, 0]
-
-    res_process:
-      - position: ""
-        description: 查看文件下载运行成功
         action: res
         type: "image"
