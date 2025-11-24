@@ -83,8 +83,7 @@ class ActionMapper:
             lambda: click_action(
                 step.get("position"),
                 click_offset=tuple(step.get("click_offset", (0, 0))),
-                click_flag=step.get("click_button", "left"),
-                uac=step.get("uac", False)
+                click_flag=step.get("click_button", "left")
             )
         )
     

@@ -19,6 +19,8 @@ import sys
 import zipfile
 import urllib.parse
 import py7zr
+import shutil
+import tempfile
 from datetime import datetime
 from typing import Dict, Any, Optional, List, Callable
 
@@ -478,6 +480,60 @@ def log_module_completion(module_name: Optional[str], cli_params: Optional[Dict[
     logger.info(completion_message)
 
 
+def _decode_filename(filename: str) -> str:
+    """
+    尝试修复乱码文件名
+    ZIP文件中的文件名通常是cp437编码，但对于中文系统，需要转换为GBK
+    """
+    try:
+        # 尝试使用cp437解码再编码为GBK，解决中文乱码问题
+        return filename.encode('cp437').decode('gbk')
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        try:
+            # 如果上述方法失败，尝试使用UTF-8解码
+            return filename.encode('cp437').decode('utf-8')
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            try:
+                # 如果仍然失败，尝试直接使用GBK解码
+                return filename.encode('cp437').decode('gbk', errors='replace')
+            except (UnicodeEncodeError, UnicodeDecodeError):
+                # 如果所有方法都失败，使用原始文件名
+                return filename
+
+
+def _prepare_target_path(target_path: str, is_dir: bool = False) -> bool:
+    """
+    准备目标路径：创建父目录，如果目标已存在则删除
+    """
+    try:
+        if is_dir:
+            if not os.path.exists(target_path):
+                os.makedirs(target_path, exist_ok=True)
+                logger.debug(f"已创建目录: {target_path}")
+            return True
+
+        # 确保文件的父目录存在
+        parent_dir = os.path.dirname(target_path)
+        if not os.path.exists(parent_dir):
+            os.makedirs(parent_dir, exist_ok=True)
+        
+        # 如果文件已存在，先删除（强制覆盖）
+        if os.path.exists(target_path):
+            try:
+                if os.path.isdir(target_path):
+                    shutil.rmtree(target_path)
+                else:
+                    os.remove(target_path)
+                logger.debug(f"已删除已存在文件: {target_path}")
+            except Exception as e:
+                logger.warning(f"删除文件失败: {target_path}, 错误: {str(e)}")
+                return False
+        return True
+    except Exception as e:
+        logger.error(f"准备目标路径失败: {target_path}, {e}")
+        return False
+
+
 def unzip_downloaded_file(download_url):
     """
     解压下载的压缩文件到指定目录，保留压缩包原有的目录结构
@@ -504,10 +560,8 @@ def unzip_downloaded_file(download_url):
         
         # 根据文件扩展名选择解压方法
         if file_name.lower().endswith('.zip'):
-            # 使用zipfile解压zip文件，保留目录结构
             _unzip_zip_file(archive_file_path, downloads_dir)
         elif file_name.lower().endswith('.7z'):
-            # 使用py7zr解压7z文件，保留目录结构
             _unzip_7z_file(archive_file_path, downloads_dir)
         else:
             logger.error(f"不支持的压缩格式: {file_name}")
@@ -530,62 +584,20 @@ def _unzip_zip_file(zip_file_path, downloads_dir):
         # 遍历zip文件中的所有文件和目录
         for file_info in zip_ref.infolist():
             # 处理文件名编码，解决中文乱码问题
-            raw_filename = file_info.filename
-            
-            # ZIP文件中的文件名通常是cp437编码，但对于中文系统，需要转换为GBK
-            try:
-                # 尝试使用cp437解码再编码为GBK，解决中文乱码问题
-                decoded_filename = raw_filename.encode('cp437').decode('gbk')
-            except (UnicodeEncodeError, UnicodeDecodeError):
-                try:
-                    # 如果上述方法失败，尝试使用UTF-8解码
-                    decoded_filename = raw_filename.encode('cp437').decode('utf-8')
-                except (UnicodeEncodeError, UnicodeDecodeError):
-                    try:
-                        # 如果仍然失败，尝试直接使用GBK解码
-                        decoded_filename = raw_filename.encode('cp437').decode('gbk', errors='replace')
-                    except (UnicodeEncodeError, UnicodeDecodeError):
-                        # 如果所有方法都失败，使用原始文件名
-                        decoded_filename = raw_filename
+            decoded_filename = _decode_filename(file_info.filename)
             
             # 构建完整的目标路径，保留目录结构
             target_path = os.path.join(downloads_dir, decoded_filename)
             
             # 如果是目录，创建目录
             if file_info.filename.endswith('/'):
-                # 确保目录存在
-                if not os.path.exists(target_path):
-                    os.makedirs(target_path, exist_ok=True)
-                    logger.debug(f"已创建目录: {target_path}")
+                _prepare_target_path(target_path, is_dir=True)
             else:
-                # 确保文件的父目录存在
-                parent_dir = os.path.dirname(target_path)
-                if not os.path.exists(parent_dir):
-                    os.makedirs(parent_dir, exist_ok=True)
-                
-                # 如果文件已存在，先删除（强制覆盖）
-                if os.path.exists(target_path):
-                    try:
-                        os.remove(target_path)
-                        logger.debug(f"已删除已存在文件: {target_path}")
-                    except Exception as e:
-                        logger.warning(f"删除文件失败: {target_path}, 错误: {str(e)}")
-                        # 如果删除失败，尝试使用 shutil.rmtree 删除
-                        import shutil
-                        try:
-                            if os.path.isdir(target_path):
-                                shutil.rmtree(target_path)
-                            else:
-                                os.remove(target_path)
-                            logger.debug(f"已强制删除文件: {target_path}")
-                        except Exception as e2:
-                            logger.error(f"强制删除文件失败: {target_path}, 错误: {str(e2)}")
-                
-                # 提取文件
-                with open(target_path, 'wb') as extracted_file:
-                    extracted_file.write(zip_ref.read(file_info.filename))
-                
-                logger.debug(f"已提取文件: {target_path}")
+                if _prepare_target_path(target_path, is_dir=False):
+                    # 提取文件
+                    with open(target_path, 'wb') as extracted_file:
+                        extracted_file.write(zip_ref.read(file_info.filename))
+                    logger.debug(f"已提取文件: {target_path}")
 
 
 def _unzip_7z_file(archive_file_path, downloads_dir):
@@ -594,104 +606,47 @@ def _unzip_7z_file(archive_file_path, downloads_dir):
     :param archive_file_path: 7z文件路径
     :param downloads_dir: 目标目录
     """
-    import shutil
-    import tempfile
-    
     try:
         # 使用py7zr库的正确方法：直接解压所有文件到目标目录
         with py7zr.SevenZipFile(archive_file_path, mode='r') as archive:
             # 首先解压到一个临时目录
-            temp_dir = tempfile.mkdtemp()
-            logger.debug(f"创建临时解压目录: {temp_dir}")
-            
-            try:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                logger.debug(f"创建临时解压目录: {temp_dir}")
+                
                 # 解压所有文件到临时目录
                 archive.extractall(temp_dir)
                 logger.debug(f"已解压文件到临时目录: {temp_dir}")
                 
-                # 获取所有文件和目录的列表，确保不遗漏任何文件
-                all_items = []
+                # 遍历临时目录中的所有文件
                 for root, dirs, files in os.walk(temp_dir):
-                    # 添加所有文件
-                    for file_name in files:
-                        file_path = os.path.join(root, file_name)
-                        all_items.append((file_path, False))  # False表示是文件
-                        
-                    # 添加所有目录
+                    # 处理所有目录，确保目录结构存在
                     for dir_name in dirs:
-                        dir_path = os.path.join(root, dir_name)
-                        all_items.append((dir_path, True))  # True表示是目录
-                
-                logger.debug(f"解压文件所有如下: {all_items}")
-                # 先处理所有目录，确保目录结构存在
-                for item_path, is_dir in all_items:
-                    if is_dir:
-                        # 获取相对路径
-                        relative_path = os.path.relpath(item_path, temp_dir)
+                        relative_path = os.path.relpath(os.path.join(root, dir_name), temp_dir)
                         target_path = os.path.join(downloads_dir, relative_path)
-                        
-                        # 确保目录存在
                         if not os.path.exists(target_path):
                             os.makedirs(target_path, exist_ok=True)
                             logger.debug(f"已创建目录: {target_path}")
-                
-                # 然后处理所有文件
-                for item_path, is_dir in all_items:
-                    if not is_dir:  # 处理文件
-                        # 获取文件名和目录
-                        dir_path = os.path.dirname(item_path)
-                        file_name = os.path.basename(item_path)
+
+                    # 处理所有文件
+                    for file_name in files:
+                        file_path = os.path.join(root, file_name)
                         
                         # 处理文件名编码，解决中文乱码问题
-                        try:
-                            # 尝试使用cp437解码再编码为GBK，解决中文乱码问题
-                            decoded_filename = file_name.encode('cp437').decode('gbk')
-                        except (UnicodeEncodeError, UnicodeDecodeError):
-                            try:
-                                # 如果上述方法失败，尝试使用UTF-8解码
-                                decoded_filename = file_name.encode('cp437').decode('utf-8')
-                            except (UnicodeEncodeError, UnicodeDecodeError):
-                                # 如果仍然失败，使用原始文件名
-                                decoded_filename = file_name
+                        decoded_filename = _decode_filename(file_name)
                         
-                        # 获取相对路径并替换文件名
-                        relative_dir_path = os.path.relpath(dir_path, temp_dir)
+                        # 获取相对路径
+                        relative_dir_path = os.path.relpath(root, temp_dir)
                         if relative_dir_path == '.':
                             relative_dir_path = ''
                         
                         # 构建目标路径
                         target_path = os.path.join(downloads_dir, relative_dir_path, decoded_filename)
                         
-                        # 确保目标目录存在
-                        target_dir = os.path.dirname(target_path)
-                        if not os.path.exists(target_dir):
-                            os.makedirs(target_dir, exist_ok=True)
-                        
-                        # 如果目标文件已存在，先删除（强制覆盖）
-                        if os.path.exists(target_path):
-                            try:
-                                os.remove(target_path)
-                                logger.debug(f"已删除已存在文件: {target_path}")
-                            except Exception as e:
-                                logger.warning(f"删除文件失败: {target_path}, 错误: {str(e)}")
-                                # 如果删除失败，尝试使用 shutil.rmtree 删除
-                                try:
-                                    if os.path.isdir(target_path):
-                                        shutil.rmtree(target_path)
-                                    else:
-                                        os.remove(target_path)
-                                    logger.debug(f"已强制删除文件: {target_path}")
-                                except Exception as e2:
-                                    logger.error(f"强制删除文件失败: {target_path}, 错误: {str(e2)}")
-                        
-                        # 复制文件到目标位置（使用复制而不是移动，以避免权限问题）
-                        shutil.copy2(item_path, target_path)
-                        logger.debug(f"已提取文件: {target_path}")
-            finally:
-                # 确保删除临时目录
-                if os.path.exists(temp_dir):
-                    shutil.rmtree(temp_dir)
-                    logger.debug(f"已删除临时目录: {temp_dir}")
+                        if _prepare_target_path(target_path, is_dir=False):
+                            # 复制文件到目标位置
+                            shutil.copy2(file_path, target_path)
+                            logger.debug(f"已提取文件: {target_path}")
+
     except ImportError:
         logger.error("缺少py7zr库，无法解压7z文件。请运行: pip install py7zr")
         raise

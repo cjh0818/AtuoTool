@@ -191,7 +191,7 @@ model:
       - position: ""
         description: 自动化安装程序
         action: auto_install
-        max_retries: 15
+        max_retries: 10
         interval: 2.0
         finish_keywords: ["finish", "完成"]
 

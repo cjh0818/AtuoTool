@@ -28,14 +28,13 @@ from config import (
 # ==== 预定义执行函数 ====
 @screenshot_decorator(screenshot_dir="screenshots/process_image")
 @ExceptionHandler.handle_element_not_found_with_context("图像定位点击")
-def click_action(image_path, confidence=0.8, click_offset=(0, 0), click_flag="left", uac=False):
+def click_action(image_path, confidence=0.8, click_offset=(0, 0), click_flag="left"):
     """
     通用图像定位并点击，匹配成功并点击返回True，未找到返回False。
     :param image_path: 模板截图路径
     :param confidence: 匹配置信度
     :param click_offset: 点击点相对左上角偏移
     :param click_flag: 点击类型，可选值：left, right, double
-    :param uac: 是否为UAC弹窗点击，使用特殊方法处理UAC权限弹窗
     :return: True 表示成功匹配并点击，False 表示未找到或匹配失败
     """
     # 如果image_path是相对路径，转换为基于程序所在目录的绝对路径
@@ -66,11 +65,9 @@ def click_action(image_path, confidence=0.8, click_offset=(0, 0), click_flag="le
         h, w = template.shape[:2]
         click_x = x + click_offset[0] + w // 2
         click_y = y + click_offset[1] + h // 2
-        pyautogui.moveTo(click_x, click_y, duration=1)
+        pyautogui.moveTo(click_x, click_y, duration=0.5)
         # 根据click_flag参数执行不同操作
         if click_flag == "left":
-            pyautogui.click()
-            pyautogui.click()
             pyautogui.click()
         elif click_flag == "right":
             pyautogui.rightClick()

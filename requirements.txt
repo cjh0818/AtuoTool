@@ -8,3 +8,4 @@ pygetwindow==0.0.9
 pywin32==311
 pywinauto==0.6.9
 comtypes==1.4.13
+py7zr==1.0.0
