@@ -1,0 +1,950 @@
+tool: godzilla
+version: hw
+launch:
+  cmd: "cd C:\\Users\\admin\\Desktop\\Godzilla国HW专版\\Godzilla国HW专版 && java -jar Godzilla.jar"
+  pause: 5
+  process_check:
+    name: "godzilla"
+    keywords: ["godzilla", "java.exe", "HW"]
+model:
+  - name: add_webshell
+    description: 添加webshell
+    # 下拉选项图像映射
+    dropdown_options:
+      # 代理类型
+      proxy:
+        _no: "images/godzilla_hw/add_webshell/proxy_no.png"
+        http: "images/godzilla_hw/add_webshell/proxy_http.png"
+        socks: "images/godzilla_hw/add_webshell/proxy_socks.png"
+        global: "images/godzilla_hw/add_webshell/proxy_global.png"
+      # 编码
+      encode:
+        utf-8: "images/godzilla_hw/add_webshell/encode_utf-8.png"
+        gbk: "images/godzilla_hw/add_webshell/encode_gbk.png"
+        gb2312: "images/godzilla_hw/add_webshell/encode_gb2312.png"
+        big5: "images/godzilla_hw/add_webshell/encode_big5.png"
+        gb18030: "images/godzilla_hw/add_webshell/encode_gb18030.png"
+        iso: "images/godzilla_hw/add_webshell/encode_iso.png"
+        latin1: "images/godzilla_hw/add_webshell/encode_latin1.png"
+        utf16: "images/godzilla_hw/add_webshell/encode_utf16.png"
+        ascii: "images/godzilla_hw/add_webshell/encode_ascii.png"
+        cp850: "images/godzilla_hw/add_webshell/encode_cp850.png"
+      # 有效载荷
+      payload:
+        asp: "images/godzilla_hw/add_webshell/payload_asp.png"
+        java: "images/godzilla_hw/add_webshell/payload_java.png"
+        cs: "images/godzilla_hw/add_webshell/payload_cs.png"
+        php: "images/godzilla_hw/add_webshell/payload_php.png"
+      # 加密器
+      encryptor:
+        # ASP加密器选项
+        asp_eval_base64: "images/godzilla_hw/add_webshell/encryptor_asp_eval_base64.png"
+        asp_xor_base64: "images/godzilla_hw/add_webshell/encryptor_asp_xor_base64.png"
+        asp_xor_raw: "images/godzilla_hw/add_webshell/encryptor_asp_xor_raw.png"
+        asp_raw: "images/godzilla_hw/add_webshell/encryptor_asp_raw.png"
+        asp_base64: "images/godzilla_hw/add_webshell/encryptor_asp_base64.png"
+        # Java加密器选项
+        java_aes_base64_profile: "images/godzilla_hw/add_webshell/encryptor_java_aes_base64_profile.png"
+        java_blowfish_base64: "images/godzilla_hw/add_webshell/encryptor_java_blowfish_base64.png"
+        java_aes_base64: "images/godzilla_hw/add_webshell/encryptor_java_aes_base64.png"
+        java_aes_base64_websocket: "images/godzilla_hw/add_webshell/encryptor_java_aes_base64_websocket.png"
+        java_aes_raw: "images/godzilla_hw/add_webshell/encryptor_java_aes_raw.png"
+        java_aes_base64_pro: "images/godzilla_hw/add_webshell/encryptor_java_aes_base64_pro.png"
+        # PHP加密器选项
+        php_aes_base64_pro: "images/godzilla_hw/add_webshell/encryptor_php_aes_base64_pro.png"
+        php_aes_base64_profile: "images/godzilla_hw/add_webshell/encryptor_php_aes_base64_profile.png"
+        php_eval_xor_base64: "images/godzilla_hw/add_webshell/encryptor_php_eval_xor_base64.png"
+        php_xor_base64: "images/godzilla_hw/add_webshell/encryptor_php_xor_base64.png"
+        php_xor_raw: "images/godzilla_hw/add_webshell/encryptor_php_xor_raw.png"
+        # C#加密器选项
+        cshap_asmx_aes_base64_pro: "images/godzilla_hw/add_webshell/encryptor_cshap_asmx_aes_base64_pro.png"
+        cshap_aes_base64_profile: "images/godzilla_hw/add_webshell/encryptor_cshap_aes_base64_profile.png"
+        cshap_aes_base64: "images/godzilla_hw/add_webshell/encryptor_cshap_aes_base64.png"
+        cshap_aes_base64_pro: "images/godzilla_hw/add_webshell/encryptor_cshap_aes_base64_pro.png"
+        cshap_eval_aes_base64: "images/godzilla_hw/add_webshell/encryptor_cshap_eval_aes_base64.png"
+        cshap_asmx_aes_base64: "images/godzilla_hw/add_webshell/encryptor_cshap_asmx_aes_base64.png"
+        cshap_aes_raw: "images/godzilla_hw/add_webshell/encryptor_cshap_aes_raw.png"    
+      profile:
+        _404: "images/godzilla_hw/add_webshell/profile_404.png"
+        _500: "images/godzilla_hw/add_webshell/profile_500.png"
+        baidu: "images/godzilla_hw/add_webshell/profile_baidu.png"
+        ecology: "images/godzilla_hw/add_webshell/profile_ecology.png"
+        hunter: "images/godzilla_hw/add_webshell/profile_hunter.png"
+        qax_vpn: "images/godzilla_hw/add_webshell/profile_qax_vpn.png"
+        seeyon: "images/godzilla_hw/add_webshell/profile_seeyon.png"
+    # 通用下拉选项依赖映射，当source_key选择某个值时，target_key的可选值会限制为对应的列表
+    dropdown_dependencies:
+      - source_key: "payload"
+        target_key: "encryptor"
+        mapping:
+          asp:
+            - "asp_eval_base64"
+            - "asp_xor_base64"
+            - "asp_xor_raw"
+            - "asp_raw"
+            - "asp_base64"
+          java:
+            - "java_aes_base64"
+            - "java_aes_base64_pro"
+            - "java_aes_base64_profile"
+            - "java_aes_base64_websocket"
+            - "java_aes_raw"
+            - "java_blowfish_base64"
+          cs:
+            - "cshap_aes_base64"
+            - "cshap_aes_base64_pro"
+            - "cshap_aes_base64_profile"
+            - "cshap_aes_raw"
+            - "cshap_asmx_aes_base64_pro"
+            - "cshap_asmx_aes_base64"
+            - "cshap_eval_aes_base64"
+          php:
+            - "php_aes_base64_pro"
+            - "php_aes_base64_profile"
+            - "php_eval_xor_base64"
+            - "php_xor_base64"
+            - "php_xor_raw"
+    
+    # 默认参数配置
+    default_params:
+      proxy_option: "_no"
+      encode_option: "utf-8"
+      payload_option: "asp"
+      encryptor_option: "asp_eval_base64"
+      profile_option: "_404"
+    
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/godzilla_hw/add_webshell/target_btn.png"
+        description: 点击【目标】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+
+      - position: ""
+        action: window
+        type: "maximize"
+  
+      - position: "images/godzilla_hw/add_webshell/add_btn.png"
+        description: 点击【添加】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/add_webshell/password_label.png"
+        description: 通过【密码】标签点击URL输入位置
+        action: click
+        click_button: left
+        click_offset: [200, -30]
+  
+      - position: ""
+        description: 输入连接webshell的url
+        action: input
+        clear: true
+        param:
+          url: "https://127.0.0.1/shell.jsp"
+  
+      - position: "images/godzilla_hw/add_webshell/password_label.png"
+        description: 通过【密码】标签点击密码输入位置
+        action: click
+        click_button: left
+        click_offset: [200, 0]
+  
+      - position: ""
+        description: 输入密码
+        action: input
+        clear: true
+        param:
+          pass: "F3Vx0Uj2ySlyxRCR"
+  
+      - position: "images/godzilla_hw/add_webshell/key_label.png"
+        description: 通过【密钥】标签点击密钥输入位置
+        action: click
+        click_button: left
+        click_offset: [200, 0]
+  
+      - position: ""
+        description: 输入密钥
+        action: input
+        clear: true
+        param:
+          key: "BC8ONmUuxLQJ6rFx"
+  
+      - position: "images/godzilla_hw/add_webshell/host_proxy.png"
+        description: 通过【代理主机】标签点击代理主机输入位置
+        action: click
+        click_button: left
+        click_offset: [200, 0]
+  
+      - position: ""
+        description: 输入代理主机
+        action: input
+        clear: true
+        param:
+          host: "127.0.0.1"
+  
+      - position: "images/godzilla_hw/add_webshell/port_proxy.png"
+        description: 通过【代理端口】标签点击代理端口输入位置
+        action: click
+        click_button: left
+        click_offset: [200, 0]
+  
+      - position: ""
+        description: 输入代理端口
+        action: input
+        clear: true
+        param:
+          port: "8080"
+  
+      - position: "images/godzilla_hw/add_webshell/proxy_label.png"
+        description: 点击【代理类型】下拉框
+        action: click
+        click_button: left
+        click_offset: [200, 0]
+  
+      - position: "{proxy_option_image}"
+        description: 选择【代理类型】选项
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+        error_res: ""
+        success_res: "" 
+
+      - position: "images/godzilla_hw/add_webshell/encode_label.png"
+        description: 点击【编码】下拉框
+        action: click
+        click_button: left
+        click_offset: [250, 0]
+  
+      - position: "{encode_option_image}"
+        description: 选择【编码】选项
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/add_webshell/payload_label.png"
+        description: 点击【有效载荷】下拉框
+        action: click
+        click_button: left
+        click_offset: [200, 0]
+  
+      - position: "{payload_option_image}"
+        description: 选择【有效载荷】选项
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/add_webshell/encryptor_label.png"
+        description: 点击【加密器】下拉框
+        action: click
+        click_button: left
+        click_offset: [200, 0]
+  
+      - position: "{encryptor_option_image}"
+        description: 选择【加密器】选项
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/add_webshell/profile_label.png"
+        description: 点击【profile】下拉框
+        action: click
+        click_button: left
+        click_offset: [220, 0]
+  
+      - position: "{profile_option_image}"
+        description: 选择【profile】选项
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/add_webshell/testconn_btn.png"
+        description: 进入控制界面
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+        error_res: "images/godzilla_hw/add_webshell/fail_label.png"
+        success_res: "images/godzilla_hw/add_webshell/success_label.png"
+        branch:
+          success:
+            - position: "images/godzilla_hw/add_webshell/confirm_btn.png"
+              description: 点击【确定】按钮
+              action: click
+              click_button: left
+            - position: "images/godzilla_hw/add_webshell/add_btn1.png"
+              description: 点击【添加】按钮
+              action: click
+              click_button: left
+            - position: "images/godzilla_hw/add_webshell/confirm_btn.png"
+              description: 点击【确定】按钮完成添加
+              action: click
+              click_button: left
+          error:
+            - position: "images/godzilla_hw/add_webshell/confirm_btn.png"
+              description: 点击【确定】按钮关闭失败提示
+              action: click
+              click_button: left
+
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"
+
+ 
+  - name: execute_commands
+    description: 命令执行Bypass
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/godzilla_hw/execute_commands/webshell-url.png"
+        description: 点击要进入的webshell
+        action: click
+        click_button: right
+        click_offset: [0, 20]
+
+      - position: ""
+        action: window
+        type: "maximize"
+  
+      - position: "images/godzilla_hw/execute_commands/into_btn.png"
+        description: 进入控制界面
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/execute_commands/commandbypass_btn.png"
+        description: 点击【命令执行bypass】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/execute_commands/flag_label.png"
+        description: 点击输入命令行位置
+        action: click
+        click_button: left
+        click_offset: [50, 0]
+  
+      - position: ""
+        description: 输入命令1
+        action: input
+        clear: false
+        param:
+          command1: " "
+  
+      - position: ""
+        description: 输入命令2
+        action: input
+        clear: false
+        param:
+          command2: " "
+  
+      - position: ""
+        description: 输入命令3
+        action: input
+        clear: false
+        param:
+          command3: " "
+  
+      - position: ""
+        description: 输入命令4
+        action: input
+        clear: false
+        param:
+          command4: " "
+  
+      - position: ""
+        description: 输入命令5
+        action: input
+        clear: false
+        param:
+          command5: " "
+  
+    res_process:
+      - position: ""
+        description: 解析命令执行返回结果
+        action: res
+        type: "text"
+      - position: ""
+        action: window
+        type: "exit"
+
+
+  - name: scan_port
+    description: 端口扫描
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/godzilla_hw/scan_port/webshell-url.png"
+        description: 点击要进入的webshell
+        action: click
+        click_button: right
+        click_offset: [0, 20]
+
+      - position: ""
+        action: window
+        type: "maximize"
+  
+      - position: "images/godzilla_hw/scan_port/into_btn.png"
+        description: 进入控制界面
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/scan_port/scanPort_btn.png"
+        description: 点击【端口扫描】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/scan_port/host_label.png"
+        description: 点击【host】标签
+        action: click
+        click_button: left
+        click_offset: [50, 0]
+  
+      - position: ""
+        description: 输入host地址
+        action: input
+        clear: true
+        param:
+          host: "127.0.0.1"
+  
+      - position: "images/godzilla_hw/scan_port/ports_label.png"
+        description: 点击【ports】标签
+        action: click
+        click_button: left
+        click_offset: [50, 0]
+  
+      - position: ""
+        description: 输入端口号
+        action: input
+        clear: true
+        param:
+          ports: "22,80,443,3369,6379,8080"
+  
+      - position: "images/godzilla_hw/scan_port/openport_label.png"
+        description: 点击【仅扫描开放端口】按钮
+        action: click
+        click_button: left
+        click_offset: [-20, 0]
+  
+      - position: "images/godzilla_hw/scan_port/scan_btn.png"
+        description: 点击【扫描】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/scan_port/confirm_btn.png"
+        description: 点击扫描按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: res
+        type: "image"
+      - position: ""
+        action: window
+        type: "exit"
+
+  - name: badpotato
+    description: badpotato提权
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/godzilla_hw/badpotato/webshell-url.png"
+        description: 点击要进入的webshell
+        action: click
+        click_button: right
+        click_offset: [0, 20]
+
+      - position: ""
+        action: window
+        type: "maximize"
+  
+      - position: "images/godzilla_hw/badpotato/into_btn.png"
+        description: 进入控制界面
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/badpotato/badpotato_btn.png"
+        description: 点击【badpotato】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/badpotato/load_btn.png"
+        description: 点击命令输入框
+        action: click
+        click_button: left
+        click_offset: [100, 0]
+  
+      - position: ""
+        description: 输入命令
+        action: input
+        clear: true
+        param:
+          command: "cmd /c whoami"
+  
+      - position: "images/godzilla_hw/badpotato/load_btn.png"
+        description: 点击【load】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/badpotato/confirm_btn.png"
+        description: 点击【确定】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/badpotato/run_btn.png"
+        description: 进入控制界面
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+
+      - position: "images/godzilla_hw/badpotato/load_btn.png"
+        description: 点击消息返回框
+        action: click
+        click_button: left
+        click_offset: [100, 300]
+  
+    res_process:
+      - position: ""
+        description: 解析命令执行返回结果
+        action: res
+        type: "text"
+      - position: ""
+        action: window
+        type: "exit"
+
+  - name: upload_memory
+    description: 上传内存马
+    # 下拉选项图像映射
+    dropdown_options:
+      # 有效载荷
+      payload:
+        aes_base64_profile: "images/godzilla_hw/upload_memory/payload_aes_base64_profile.png"
+        aes_base64_pro: "images/godzilla_hw/upload_memory/payload_aes_base64_pro.png"
+        neoregeorg: "images/godzilla_hw/upload_memory/payload_neoregeorg.png"
+        aes_base64: "images/godzilla_hw/upload_memory/payload_aes_base64.png"
+        aes_raw: "images/godzilla_hw/upload_memory/payload_aes_raw.png"
+        behinder: "images/godzilla_hw/upload_memory/payload_behinder.png"
+        cknife: "images/godzilla_hw/upload_memory/payload_cknife.png"
+        regeorg: "images/godzilla_hw/upload_memory/payload_regeorg.png"
+    
+    # 默认参数配置
+    default_params:
+      payload_option: "aes_base64_profile"
+
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/godzilla_hw/upload_memory/webshell-url.png"
+        description: 点击要进入的webshell
+        action: click
+        click_button: right
+        click_offset: [0, 20]
+
+      - position: ""
+        action: window
+        type: "maximize"
+  
+      - position: "images/godzilla_hw/upload_memory/into_btn.png"
+        description: 进入控制界面
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/upload_memory/memory_btn.png"
+        description: 点击【内存马】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/upload_memory/url_label.png"
+        description: 点击【url】输入框
+        action: click
+        click_button: left
+        click_offset: [100, 0]
+  
+      - position: ""
+        description: 输入内存马地址
+        action: input
+        clear: true
+        param:
+          memory_path: "/favicon.ico"
+  
+      - position: "images/godzilla_hw/upload_memory/password_label.png"
+        description: 点击【password】输入框
+        action: click
+        click_button: left
+        click_offset: [100, 0]
+  
+      - position: ""
+        description: 输入内存马密码
+        action: input
+        clear: true
+        param:
+          pass: "pass123"
+  
+      - position: "images/godzilla_hw/upload_memory/secretkey_label.png"
+        description: 点击【secretkey】输入框
+        action: click
+        click_button: left
+        click_offset: [100, 0]
+  
+      - position: ""
+        description: 输入内存马密钥
+        action: input
+        clear: true
+        param:
+          key: "key123"
+  
+      - position: "images/godzilla_hw/upload_memory/payload_label.png"
+        description: 点击【payload】下拉框
+        action: click
+        click_button: left
+        click_offset: [200, 0]
+  
+      - position: "{payload_option_image}"
+        description: 选择【有效载荷】选项
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/upload_memory/run_btn.png"
+        description: 点击【run】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/upload_memory/memoryExist.png"
+        description: 判断是否已存在内存马
+        action: recognize
+  
+      - position: "images/godzilla_hw/upload_memory/confirm_btn.png"
+        description: 点击【确定】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"
+
+
+  - name: delete_memory
+    description: 删除内存马
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/godzilla_hw/delete_memory/webshell-url.png"
+        description: 点击要进入的webshell
+        action: click
+        click_button: right
+        click_offset: [0, 20]
+
+      - position: ""
+        action: window
+        type: "maximize"
+
+      - position: "images/godzilla_hw/delete_memory/into_btn.png"
+        description: 进入控制界面
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/delete_memory/memory_btn.png"
+        description: 点击【内存马】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/delete_memory/unload_btn.png"
+        description: 点击【unload】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/delete_memory/urlPattern_label.png"
+        description: 点击【url】输入框
+        action: click
+        click_button: right
+        click_offset: [0, 20]
+  
+      - position: ""
+        description: 输入内存马地址
+        action: input
+        clear: true
+        param:
+          memory_path: "/favicon.ico"
+  
+      - position: "images/godzilla_hw/delete_memory/noWrapper_label.png"
+        description: 判断删除内存马是否成功
+        action: recognize
+  
+      - position: "images/godzilla_hw/delete_memory/confirm_btn.png"
+        description: 点击【确定】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"
+
+
+  - name: upload_file
+    description: 文件上传
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/godzilla_hw/upload_file/webshell-url.png"
+        description: 点击要进入的webshell
+        action: click
+        click_button: right
+        click_offset: [0, 20]
+
+      - position: ""
+        action: window
+        type: "maximize"
+  
+      - position: "images/godzilla_hw/upload_file/into_btn.png"
+        description: 进入控制界面
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/upload_file/file_btn.png"
+        description: 点击【文件管理】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/upload_file/file_btn.png"
+        description: 选择文件路径输入框
+        action: click
+        click_button: left
+        click_offset: [0, 20]
+  
+      - position: ""
+        description: 输入文件路径
+        action: input
+        clear: true
+        param:
+          file_path: "/path/to/file"
+  
+      - position: "images/godzilla_hw/upload_file/dirNotExist.png"
+        description: 判断文件路径是否存在
+        action: recognize
+  
+      - position: "images/godzilla_hw/upload_file/upload_btn.png"
+        description: 点击【上传】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/upload_file/filename_label.png"
+        description: 点击【文件名】标签
+        action: click
+        click_button: left
+        click_offset: [80, 0]
+  
+      - position: ""
+        description: 输入上传文件名
+        action: input
+        clear: true
+        param:
+          upload_file: "filename.ext"
+  
+      - position: "images/godzilla_hw/upload_file/fileNotExist.png"
+        description: 判断上传文件是否存在
+        action: recognize
+  
+      - position: "images/godzilla_hw/upload_file/confirm_btn.png"
+        description: 点击【确定】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"
+
+  - name: download_file
+    description: 文件下载
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/godzilla_hw/download_file/webshell-url.png"
+        description: 点击要进入的webshell
+        action: click
+        click_button: right
+        click_offset: [0, 20]
+
+      - position: ""
+        action: window
+        type: "maximize"
+  
+      - position: "images/godzilla_hw/download_file/into_btn.png"
+        description: 进入控制界面
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/download_file/file_btn.png"
+        description: 点击【文件管理】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/download_file/file_btn.png"
+        description: 选择文件路径输入框
+        action: click
+        click_button: left
+        click_offset: [0, 20]
+  
+      - position: ""
+        description: 输入文件路径
+        action: input
+        clear: true
+        param:
+          file_path: "/path/to/file"
+  
+      - position: "images/godzilla_hw/download_file/dirNotExist.png"
+        description: 判断文件路径是否存在
+        action: recognize
+
+      - position: ""
+        description: 点击win + R调用系统输入框
+        action: keyboard
+        keys: "win,r"
+        action_type: "hotkey"
+
+      - position: "images/mdut_2.0.6/replace_key/open_label.png"
+        description: 点击输入框
+        action: click
+        click_button: left
+        click_offset: [30, -10]
+
+      - position: ""
+        description: 输入地址
+        action: input
+        enter: false
+        param:
+          file_name: "filetest.txt"
+
+      - position: ""
+        description: 生成文件名截图
+        action: screenshot
+        use_last_click_position: true
+        screenshot_path: "images/godzilla_hw/download_file/down_filename.png"
+        size: [120, 15]
+
+      - position: "images/mdut_2.0.6/replace_key/return_label.png"
+        description: 点击【取消】按钮退出win+R
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+
+      - position: "images/godzilla_hw/download_file/down_filename.png"
+        description: 点击要下载的文件
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/godzilla_hw/download_file/download_btn.png"
+        description: 点击【下载】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: ""
+        description: 输入下载文件名
+        action: input
+        clear: true
+        param:
+          down_file: "downloaded_file.ext"
+  
+      - position: "images/godzilla_hw/download_file/confirm_btn.png"
+        description: 点击【确定】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"

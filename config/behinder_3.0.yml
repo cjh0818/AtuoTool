@@ -1,0 +1,329 @@
+tool: behinder
+version: 3.0
+launch:
+  cmd: "cd C:\\Users\\admin\\Desktop\\Behinder_v3.0_Beta_11.t00ls && java -jar Behinder.jar"
+  pause: 5
+  process_check:
+    name: "behinder"
+    keywords: ["behinder", "java.exe", "3.0"]
+model:
+  - name: open_proxy
+    description: 开启代理
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/behinder_3.0/open_proxy/proxy_btn.png"
+        description: 点击【代理】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_3.0/open_proxy/setproxy_btn.png"
+        description: 点击【设置代理】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_3.0/open_proxy/open_btn.png"
+        description: 点击【启用】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_3.0/open_proxy/save_btn.png"
+        description: 点击【保存】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"
+
+
+  - name: close_proxy
+    description: 禁用代理
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/behinder_3.0/close_proxy/proxy_btn.png"
+        description: 点击【代理】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_3.0/close_proxy/setproxy_btn.png"
+        description: 点击【设置代理】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_3.0/close_proxy/no_btn.png"
+        description: 点击【禁用】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_3.0/close_proxy/save_btn.png"
+        description: 点击【保存】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"
+
+
+  - name: file_manger
+    description: 文件管理
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+
+      - position: "images/behinder_3.0/file_manger/search_label.png"
+        description: 点击【url搜索框】
+        action: click
+        click_button: left
+        click_offset: [50, 0]
+
+      - position: ""
+        action: window
+        type: "maximize"
+
+      - position: ""
+        description: 输入要连接的url
+        action: input
+        clear: true
+        param:
+          url: "http://111.112.220.25:8090"
+
+      - position: "images/behinder_3.0/file_manger/nothing_label.png"
+        description: 判断是否有该url
+        action: recognize
+  
+      - position: "images/behinder_3.0/file_manger/number_label.png"
+        description: 进入控制界面
+        action: click
+        click_button: double
+        click_offset: [0, 20]
+  
+      - position: "images/behinder_3.0/file_manger/failed_label.png"
+        description: 判断是否连接成功
+        action: recognize
+  
+      - position: "images/behinder_3.0/file_manger/filemanger_btn.png"
+        description: 点击【文件管理】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_3.0/file_manger/path_label.png"
+        description: 点击路径输入框
+        action: click
+        click_button: left
+        click_offset: [30, -6]
+  
+      - position: ""
+        description: 输入文件名
+        action: input
+        clear: true
+        enter: false
+        param:
+          file_name: "login-min.js"
+  
+      - position: ""
+        description: 生成文件名截图
+        action: screenshot
+        use_last_click_position: true
+        screenshot_path: "images/behinder_3.0/file_manger/filename.png"
+        size: [120, 15]
+  
+      - position: ""
+        description: 输入文件路径
+        action: input
+        clear: true
+        param:
+          file_path: "/opt/atlassian/confluence/confluence/includes/js/"
+
+      - position: "images/behinder_3.0/file_manger/updateTime_btn.png"
+        description: 点击按【修改时间】排序文件
+        action: click
+        click_button: double
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_3.0/file_manger/filename.png"
+        description: 点击要修改的文件
+        action: click
+        click_button: double
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_3.0/file_manger/note_label1.png"
+        description: 点击注释位置
+        action: click
+        click_button: left
+        click_offset: [5, 0]
+
+      - position: ""
+        description: 长按【backspace键】删除
+        action: keyboard
+        keys: "backspace"
+        duration: 0.2
+        action_type: "press"
+
+      - position: "images/behinder_3.0/file_manger/note_label2.png"
+        description: 点击注释位置
+        action: click
+        click_button: left
+        click_offset: [10, 0]
+
+      - position: ""
+        description: 长按【backspace键】删除
+        action: keyboard
+        keys: "backspace"
+        duration: 0.2
+        action_type: "press"
+
+      - position: "images/behinder_3.0/file_manger/save_btn.png"
+        description: 点击【保存】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"
+
+
+  - name: add_Webshell
+    description: 添加webshell
+    # 下拉选项图像映射
+    dropdown_options:
+      # 类型
+      type:
+        jsp: "images/behinder_3.0/add_webshell/type_jsp.png"
+        php: "images/behinder_3.0/add_webshell/type_php.png"
+        aspx: "images/behinder_3.0/add_webshell/type_aspx.png"
+        asp: "images/behinder_3.0/add_webshell/type_asp.png"
+    # 默认参数配置
+    default_params:
+      type_option: "jsp"
+
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/behinder_3.0/add_webshell/id_label.png"
+        description: 根据url标签右击新增URL
+        action: click
+        click_button: right
+        click_offset: [0, 30]
+
+      - position: ""
+        action: window
+        type: "maximize"
+  
+      - position: "images/behinder_3.0/add_webshell/add_btn.png"
+        description: 点击【新增】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_3.0/add_webshell/url_label.png"
+        description: 通过url标签点击URL输入位置
+        action: click
+        click_button: left
+        click_offset: [100, 0]
+  
+      - position: ""
+        description: 输入连接webshell的url
+        action: input
+        clear: true
+        enter: false
+        param:
+          url: "http://10.67.192.7:8080"
+  
+      - position: "images/behinder_3.0/add_webshell/password_label.png"
+        description: 通过密码标签点击密码输入位置
+        action: click
+        click_button: left
+        click_offset: [100, 0]
+  
+      - position: ""
+        description: 输入密码
+        action: input
+        enter: false
+        param:
+          password: "qiqing"
+
+      - position: "images/behinder_3.0/add_webshell/type_label.png"
+        description: 点击【类型】下拉框
+        action: click
+        click_button: left
+        click_offset: [80, 0]
+  
+      - position: "{type_option_image}"
+        description: 选择类型选项
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+        error_res: ""
+        success_res: "" 
+  
+      - position: "images/behinder_3.0/add_webshell/Head_label.png"
+        description: 通过请求头标签点击请求头输入位置
+        action: click
+        click_button: left
+        click_offset: [50, 0]
+  
+  
+      - position: ""
+        description: 输入请求头
+        action: input
+        enter: false
+        param:
+          requestHead: ""
+
+      - position: "images/behinder_3.0/add_webshell/save_btn.png"
+        description: 点击【保存】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"

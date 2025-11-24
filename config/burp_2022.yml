@@ -1,0 +1,62 @@
+tool: burp
+version: 2022
+launch:
+  cmd: "cd C:\\Users\\admin\\Desktop\\burp\\BurpSuite2022.9.4 && BurpSuite2022.9.4.vbs"
+  pause: 5
+  process_check:
+    name: Burp Suite Professional v2022.9.4
+    keywords: ["Burp Suite Professional v2022.9.4", "java.exe", "Burp"]
+model:
+  - name: open_burp
+    description: 开启burp
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+        skip_process_check: true
+      
+      - position: "images/burp_2022/open_burp/leave_btn.png"
+        description: 判断是否存在leave
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/burp_2022/open_burp/leave_btn.png"
+              description: 点击leave
+              action: click
+              click_button: left
+
+      - position: "images/burp_2022/open_burp/next_btn.png"
+        description: 点击next
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+
+      - position: "images/burp_2022/open_burp/start_burp.png"
+        description: 点击start_burp
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+
+      - position: "images/burp_2022/open_burp/yes_btn.png"
+        description: 判断是否存在安全模式启动
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/burp_2022/open_burp/yes_btn.png"
+              description: 点击yes
+              action: click
+              click_button: left
+              click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "minimize"

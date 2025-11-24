@@ -1,0 +1,259 @@
+tool: mdut
+version: 2.0.6
+launch:
+  cmd: "cd C:\\Users\\admin\\Desktop\\MDUT-Multiple.Database.Utilization.Tools.v2.0.6 && java -jar MDUT.jar"
+  pause: 5
+  process_check:
+    name: "Multiple Database Utilization Tools - v2.0.6"
+    keywords: ["Multiple Database Utilization Tools", "java.exe", "2.0.6"]
+model:
+  - name: add_url
+    description: 添加数据库连接
+    # 下拉选项图像映射
+    dropdown_options:
+      # 数据库类型
+      database:
+        mysql: "images/mdut_2.0.6/add_url/data_mysql.png"
+        mssql: "images/mdut_2.0.6/add_url/data_mssql.png"
+        oracle: "images/mdut_2.0.6/add_url/data_oracle.png"
+        postgresql: "images/mdut_2.0.6/add_url/data_postgresql.png"
+        redis: "images/mdut_2.0.6/add_url/data_redis.png"
+
+    # 默认参数配置
+    default_params:
+      database_option: "redis"
+
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+
+      - position: "images/mdut_2.0.6/add_url/confirm_btn.png"
+        description: 判断命令启动还是窗口激活
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/mdut_2.0.6/add_url/confirm_btn.png"
+              description: 点击【确定】按钮
+              action: click
+              click_button: left
+  
+      - position: "images/mdut_2.0.6/add_url/id_label.png"
+        description: 根据id标签点击新增
+        action: click
+        click_button: left
+        click_offset: [0, 20]
+
+      - position: ""
+        action: window
+        type: "maximize"
+
+      - position: "images/mdut_2.0.6/add_url/id_label.png"
+        description: 根据id标签点击新增
+        action: click
+        click_button: right
+        click_offset: [0, 20]
+  
+      - position: "images/mdut_2.0.6/add_url/add_btn.png"
+        description: 点击【新增】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+
+      - position: ""
+        action: window
+        type: "maximize"
+
+      - position: "images/mdut_2.0.6/add_url/datatype_label.png"
+        description: 点击【数据库类型】【下拉框
+        action: click
+        click_button: left
+        click_offset: [100, 0]
+  
+      - position: "{database_option_image}"
+        description: 选择数据库类型选项
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+        error_res: ""
+        success_res: "" 
+      
+      - position: "images/mdut_2.0.6/add_url/host_label.png"
+        description: 点击地址输入框
+        action: click
+        click_button: left
+        click_offset: [55, -7]
+
+      - position: ""
+        description: 输入地址
+        action: input
+        enter: false
+        param:
+          host: ""
+
+      - position: ""
+        description: 生成host地址截图
+        action: screenshot
+        use_last_click_position: true
+        screenshot_path: "images/mdut_2.0.6/replace_key/hostconn_label.png"
+        size: [100, 18]
+
+      - position: "images/mdut_2.0.6/add_url/pass_label.png"
+        description: 点击密码输入框
+        action: click
+        click_button: left
+        click_offset: [150, 0]
+
+      - position: ""
+        description: 输入密码
+        action: input
+        enter: false
+        param:
+          pass: ""
+
+      - position: "images/mdut_2.0.6/add_url/test_btn.png"
+        description: 点击【测试】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+
+      - position: "images/mdut_2.0.6/add_url/failed_label.png"
+        description: 判断数据库连接是否成功
+        action: recognize
+
+      - position: "images/mdut_2.0.6/add_url/save_btn.png"
+        description: 点击【保存】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+      
+      - position: "images/mdut_2.0.6/add_url/confirm_btn.png"
+        description: 点击【保存】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"
+
+
+  - name: replace_key
+    description: 替换公钥
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+        
+      - position: ""
+        description: 进入控制界面
+        action: open
+
+      - position: "images/mdut_2.0.6/replace_key/confirm_btn.png"
+        description: 判断命令启动还是窗口激活
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/mdut_2.0.6/replace_key/confirm_btn.png"
+              description: 点击【确定】按钮
+              action: click
+              click_button: left
+
+      - position: ""
+        action: window
+        type: "maximize"
+
+      - position: ""
+        description: 点击win + R调用系统输入框
+        action: keyboard
+        keys: "win,r"
+        action_type: "hotkey"
+
+      - position: "images/mdut_2.0.6/replace_key/open_label.png"
+        description: 点击输入框
+        action: click
+        click_button: left
+        click_offset: [30, -10]
+
+      - position: ""
+        description: 输入地址
+        action: input
+        enter: false
+        param:
+          host: "127.0.0.1"
+
+      - position: ""
+        description: 生成host地址截图
+        action: screenshot
+        use_last_click_position: true
+        screenshot_path: "images/mdut_2.0.6/replace_key/hostconn_label.png"
+        size: [100, 18]
+
+      - position: "images/mdut_2.0.6/replace_key/return_label.png"
+        description: 点击【取消】按钮退出win+R
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/mdut_2.0.6/replace_key/hostconn_label.png"
+        description: 进入控制界面
+        action: click
+        click_button: double
+        click_offset: [0, 0]
+
+      - position: ""
+        action: window
+        type: "maximize"
+
+      - position: "images/mdut_2.0.6/replace_key/exmodule_btn.png"
+        description: 点击【扩展功能】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/mdut_2.0.6/replace_key/connsuccess_label.png"
+        description: 判断连接数据库是否成功
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/mdut_2.0.6/replace_key/replaceKey_btn.png"
+              description: 点击【替换SSH公钥】按钮
+              action: click
+              click_button: left
+              click_offset: [0, 0]
+
+            - position: "images/mdut_2.0.6/replace_key/replaceKey_btn.png"
+              description: 点击替换SSH公钥输入框
+              action: click
+              click_button: left
+              click_offset: [0, 50]
+
+            - position: ""
+              description: 输入替换公钥
+              action: input
+              clear: true
+              param:
+                key_filepath: "C:\\Users\\admin\\id_rsa.pub"
+
+            - position: "images/mdut_2.0.6/replace_key/startReplace_btn.png"
+              description: 点击【开始替换】按钮
+              action: click
+              click_button: left
+
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"

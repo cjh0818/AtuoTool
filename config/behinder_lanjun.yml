@@ -1,0 +1,300 @@
+tool: behinder
+version: lanjun
+launch:
+  cmd: "cd C:\\Users\\admin\\Desktop\\BAS\\Behinder-3=lanjun && java -jar Behinder-3.0-beta-lanjun_qiqing-jar-with-dependencies.jar"
+  pause: 5
+  process_check:
+    name: "behinder"
+    keywords: ["behinder", "java.exe", "lanjun"]
+model:
+  - name: open_proxy
+    description: 开启代理
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/behinder_lanjun/open_proxy/proxy_btn.png"
+        description: 点击【代理】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_lanjun/open_proxy/setproxy_btn.png"
+        description: 点击【设置代理】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_lanjun/open_proxy/open_btn.png"
+        description: 点击【启用】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_lanjun/open_proxy/save_btn.png"
+        description: 点击【保存】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"
+
+  - name: close_proxy
+    description: 禁用代理
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/behinder_lanjun/close_proxy/proxy_btn.png"
+        description: 点击【代理】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_lanjun/close_proxy/setproxy_btn.png"
+        description: 点击【设置代理】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_lanjun/close_proxy/no_btn.png"
+        description: 点击【禁用】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_lanjun/close_proxy/save_btn.png"
+        description: 点击【保存】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"
+
+
+  - name: execute_commands
+    description: 命令执行
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+
+      - position: "images/behinder_lanjun/execute_commands/search_label.png"
+        description: 点击url搜索框
+        action: click
+        click_button: left
+        click_offset: [-50, 0]
+
+      - position: ""
+        action: window
+        type: "maximize"
+
+      - position: ""
+        description: 输入要连接的url
+        action: input
+        clear: true
+        param:
+          url: "http://111.112.60.22:8080/server/conf.jsp"
+
+      - position: "images/behinder_lanjun/execute_commands/nothing_label.png"
+        description: 判断是否有该url
+        action: recognize
+  
+      - position: "images/behinder_lanjun/execute_commands/number_label.png"
+        description: 进入控制界面
+        action: click
+        click_button: double
+        click_offset: [0, 20]
+  
+      - position: "images/behinder_lanjun/execute_commands/failed_label.png"
+        description: 判断连接webshell是否成功
+        action: recognize
+  
+      - position: "images/behinder_lanjun/execute_commands/execute_btn.png"
+        description: 点击【命令执行】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_lanjun/execute_commands/flag_label.png"
+        description: 点击输入命令行位置
+        action: click
+        click_button: left
+        click_offset: [50, 0]
+  
+      - position: ""
+        description: 输入命令1
+        action: input
+        clear: false
+        param:
+          command1: " "
+  
+      - position: ""
+        description: 输入命令2
+        action: input
+        clear: false
+        param:
+          command2: " "
+  
+      - position: ""
+        description: 输入命令3
+        action: input
+        clear: false
+        param:
+          command3: " "
+  
+      - position: ""
+        description: 输入命令4
+        action: input
+        clear: false
+        param:
+          command4: " "
+  
+      - position: ""
+        description: 输入命令5
+        action: input
+        clear: false
+        param:
+          command5: " "
+  
+    res_process:
+      - position: ""
+        description: 提取命令输出中的IP地址
+        action: res
+        type: "text"
+      - position: ""
+        action: window
+        type: "exit"
+
+  - name: add_Webshell
+    description: 添加webshell
+    # 下拉选项图像映射
+    dropdown_options:
+      # 类型
+      type:
+        jsp: "images/behinder_lanjun/add_webshell/type_jsp.png"
+        php: "images/behinder_lanjun/add_webshell/type_php.png"
+        aspx: "images/behinder_lanjun/add_webshell/type_aspx.png"
+        asp: "images/behinder_lanjun/add_webshell/type_asp.png"
+    # 默认参数配置
+    default_params:
+      type_option: "jsp"
+
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 进入控制界面
+        action: open
+  
+      - position: "images/behinder_lanjun/add_webshell/id_label.png"
+        description: 根据url标签右击新增URL
+        action: click
+        click_button: right
+        click_offset: [0, 30]
+
+      - position: ""
+        action: window
+        type: "maximize"
+  
+      - position: "images/behinder_lanjun/add_webshell/add_btn.png"
+        description: 点击【新增】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+      - position: "images/behinder_lanjun/add_webshell/url_label.png"
+        description: 通过url标签点击URL输入位置
+        action: click
+        click_button: left
+        click_offset: [100, 0]
+  
+      - position: ""
+        description: 输入连接webshell的url
+        action: input
+        clear: true
+        enter: false
+        param:
+          url: "http://10.67.192.7:8080"
+  
+      - position: "images/behinder_lanjun/add_webshell/password_label.png"
+        description: 通过密码标签点击密码输入位置
+        action: click
+        click_button: left
+        click_offset: [100, 0]
+  
+      - position: ""
+        description: 输入密码
+        action: input
+        enter: false
+        param:
+          password: "qiqing"
+
+      - position: "images/behinder_lanjun/add_webshell/type_label.png"
+        description: 点击【类型】下拉框
+        action: click
+        click_button: left
+        click_offset: [80, 0]
+  
+      - position: "{type_option_image}"
+        description: 选择类型选项
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+        error_res: ""
+        success_res: "" 
+  
+      - position: "images/behinder_lanjun/add_webshell/Head_label.png"
+        description: 通过请求头标签点击请求头输入位置
+        action: click
+        click_button: left
+        click_offset: [50, 0]
+  
+  
+      - position: ""
+        description: 输入请求头
+        action: input
+        enter: false
+        param:
+          requestHead: ""
+
+      - position: "images/behinder_lanjun/add_webshell/save_btn.png"
+        description: 点击【保存】按钮
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+  
+    res_process:
+      - position: ""
+        action: window
+        type: "exit"

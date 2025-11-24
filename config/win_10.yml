@@ -1,0 +1,344 @@
+tool: win
+version: 10
+launch:
+  cmd: " "
+  pause: 3
+  process_check:
+    name: "Microsoft Edge"
+    keywords: ["Microsoft Edge"]
+model:
+  - name: open_rdp
+    description: 开启rdp连接
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: ""
+        description: 点击win + R调用系统输入框
+        action: keyboard
+        keys: "win,r"
+        action_type: "hotkey"
+
+      - position: "images/win_10/open_rdp/open_label.png"
+        description: 点击输入框
+        action: click
+        click_button: left
+        click_offset: [80, 0]
+
+      - position: ""
+        description: 输入开启rdp快捷指令
+        action: input
+        param:
+          command: "mstsc"
+
+      - position: "images/win_10/open_rdp/host_label.png"
+        description: 点击远程主机输入框
+        action: click
+        click_button: left
+        click_offset: [80, 0]
+
+      - position: ""
+        description: 输入远程主机地址
+        action: input
+        enter: false
+        param:
+          host: "127.0.0.1"
+
+      - position: "images/win_10/open_rdp/conn_btn.png"
+        description: 连接远程主机
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+
+      - position: "images/win_10/open_rdp/failed_label.png"
+        description: 判断远程主机是否在线
+        action: recognize
+
+      - position: "images/win_10/open_rdp/user_label.png"
+        description: 判断是否需要输入用户名（第一次连接需要输入用户名）
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: ""
+              description: 输入远程连接主机用户名
+              action: input
+              param:
+                user: "admin"
+
+      - position: ""
+        description: 输入远程主机密码
+        action: input
+        enter: false
+        param:
+          pass: "admin123"
+
+      - position: "images/win_10/open_rdp/confirm_btn.png"
+        description: 连接远程主机
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+
+      - position: "images/win_10/open_rdp/connfail_label.png"
+        description: 判断远程主机账号密码是否正确
+        action: recognize
+
+      - position: "images/win_10/open_rdp/yes_btn.png"
+        description: 点击yes按钮进入rdp
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+
+    res_process:
+      - position: ""
+        description: 查看rdp连接是否成功
+        action: res
+        type: "image"
+
+
+  - name: edge_down
+    description: 浏览器下载文件
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+
+      - position: "images/win_10/edge_down/edge_icon.png"
+        description: 运行edge浏览器
+        action: click
+        click_button: double
+        click_offset: [0, 0]
+
+      - position: "images/win_10/edge_down/search_label.png"
+        description: 点击访问url输入框
+        action: click
+        click_button: left
+        click_offset: [0, 0]
+
+      - position: ""
+        action: window
+        type: maximize
+
+      - position: ""
+        description: 下载样本
+        action: input
+        param:
+          down_url: "http://10.67.174.5/Sandboxie.exe"
+
+      - position: "images/win_10/edge_down/down_label.png"
+        description: 判断是否出现下载弹窗
+        action: recognize
+        type: success
+        branch:
+          success:
+            - position: ""
+              description: 反馈下载成功标志
+              action: output
+              text: "已成功下载{down_url}文件"
+
+    res_process:
+      - position: ""
+        description: 点击alt + f4退出edge浏览器
+        action: keyboard
+        keys: "alt,f4"
+        action_type: "hotkey"
+
+
+  - name: run_sample
+    description: 运行样本
+    process:
+      - position: ""
+        description: 点击win + D显示桌面
+        action: keyboard
+        keys: "win,d"
+        action_type: "hotkey"
+        
+      - position: ""
+        description: 点击win + R调用系统输入框
+        action: keyboard
+        keys: "win,r"
+        action_type: "hotkey"
+
+      - position: "images/win_10/run_sample/open_label.png"
+        description: 点击输入框
+        action: click
+        click_button: left
+        click_offset: [30, -10]
+
+      - position: ""
+        description: 输入文件所在路径
+        action: input
+        param:
+          file_path: "C:/Users/admin/Downloads/Sandboxie.exe"
+
+      - position: "images/win_10/run_sample/run_btn.png"
+        description: 判断是否有安全告警弹窗
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/win_10/run_sample/run_btn.png"
+              description: 点击【运行】按钮
+              action: click
+              click_button: left
+              click_offset: [0, 0]
+
+      - position: "images/win_10/run_sample/next_btn.png"
+        description: 识别【next】按钮
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/win_10/run_sample/next_btn.png"
+              description: 点击【next】按钮
+              action: click
+              click_button: left
+              click_offset: [0, 0]
+
+      - position: "images/win_10/run_sample/next1_btn.png"
+        description: 识别【next】按钮
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/win_10/run_sample/next1_btn.png"
+              description: 点击【next】按钮
+              action: click
+              click_button: left
+              click_offset: [0, 0]
+
+      - position: ""
+        description: 点击Enter安装样本
+        action: keyboard
+        keys: "enter"
+
+      - position: "images/win_10/run_sample/install_btn.png"
+        description: 识别【install】按钮
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/win_10/run_sample/install_btn.png"
+              description: 点击【install】按钮
+              action: click
+              click_button: left
+              click_offset: [0, 0]
+
+      - position: "images/win_10/run_sample/next_btn.png"
+        description: 识别【next】按钮
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/win_10/run_sample/next_btn.png"
+              description: 点击【next】按钮
+              action: click
+              click_button: left
+              click_offset: [0, 0]
+
+      - position: "images/win_10/run_sample/winrar_setup.png"
+        description: 识别winrar安装程序
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/win_10/run_sample/winrar_next.png"
+              description: 点击【next】按钮
+              action: click
+              click_button: left
+              click_offset: [0, 0]
+
+            - position: "images/win_10/run_sample/agree_btn.png"
+              description: 点击【agree】按钮
+              action: click
+              click_button: left
+              click_offset: [0, 0]
+
+            - position: ""
+              description: 点击Enter安装样本
+              action: keyboard
+              keys: "enter"
+
+            - position: ""
+              description: 点击Enter安装样本
+              action: keyboard
+              keys: "enter"
+
+            - position: ""
+              description: 点击Enter安装样本
+              action: keyboard
+              keys: "enter"
+
+            - position: ""
+              description: 点击Enter安装样本
+              action: keyboard
+              keys: "enter"
+
+            - position: ""
+              description: 点击Enter安装样本
+              action: keyboard
+              keys: "enter"
+
+            - position: ""
+              description: 点击Enter安装样本
+              action: keyboard
+              keys: "enter"
+
+      - position: ""
+        description: 点击Enter安装样本
+        action: keyboard
+        keys: "enter"
+
+      - position: ""
+        description: 点击Enter安装样本
+        action: keyboard
+        keys: "enter"
+      
+      - position: "images/win_10/run_sample/finish_btn.png"
+        description: 识别【finish】按钮
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/win_10/run_sample/finish_btn.png"
+              description: 点击【finish】按钮
+              action: click
+              click_button: left
+              click_offset: [0, 0]
+
+    res_process:
+      - position: ""
+        description: 查看文件运行是否成功
+        action: res
+        type: "image"
+
+
+  - name: test
+    process:
+      - position: "images/win_10/run_sample/cancel_btn.png"
+        description: 识别【cancel】按钮
+        action: click
+        click_button: left
+
+      - position: "images/win_10/run_sample/next1_btn.png"
+        description: 识别【next1】按钮
+        action: recognize
+        step: continue
+        branch:
+          success:
+            - position: "images/win_10/run_sample/next1_btn.png"
+              description: 点击【finish】按钮
+              action: click
+              click_button: left
+              click_offset: [0, 0]
+
+    res_process:
+      - position: ""
+        description: 查看文件下载运行成功
+        action: res
+        type: "image"
