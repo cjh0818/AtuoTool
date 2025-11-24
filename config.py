@@ -391,15 +391,21 @@ class AutoInstallConfig:
         "enable", "retry", "continue", "connect", "unzip", "open", 
         "finish", "end", "allow access", "ja", "weiter", "akzeptieren", 
         "starten", "fertig", "zustimmen", "ausfuehren", "einverstanden",
+        "launch", "extract", "update", "upgrade", 
+        "proceed", "skip", "ignore", "done", "next >", "install now", 
+        "i accept", "i agree", "beenden", "installieren", 
         "是", "确定", "接受", "下一步", "安装", "运行", "同意", 
         "启用", "重试", "继续", "连接", "解压", "打开", 
-        "完成", "结束", "允许访问"
+        "完成", "结束", "允许访问", 
+        "启动", "更新", "升级", "跳过", "忽略", 
+        "立即安装", "我接受", "我同意"
     ]
     
     # 默认结束关键词列表（点击这些按钮后认为安装结束）
     DEFAULT_FINISH_KEYWORDS = [
         "finish", "fertig", "close the program", "complete",
-        "完成", "结束", "关闭程序"
+        "完成", "结束", "关闭程序",
+        "close", "exit", "done", "退出"
     ]
     
     # 不点击的关键词列表（黑名单）
