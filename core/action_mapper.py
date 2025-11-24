@@ -17,7 +17,7 @@ from core.param_processor import ParamProcessor
 from core.action import (
     click_action, input_action, openAPP_action, window_minimize,
     window_maximize, text_output, image_output, screenshot_action,
-    keyboard_action, output_action
+    keyboard_action, output_action, auto_install_action
 )
 
 
@@ -36,6 +36,7 @@ class ActionMapper:
             ActionTypes.KEYBOARD: self._map_keyboard_action,
             ActionTypes.SCREENSHOT: self._map_screenshot_action,
             ActionTypes.OUTPUT: self._map_output_action,
+            ActionTypes.AUTO_INSTALL: self._map_auto_install_action,
         }
     
     def map_action(self, step: Dict[str, Any], cli_params: Dict[str, Any], 
@@ -178,3 +179,22 @@ class ActionMapper:
             lambda: output_action(text, cli_params)
         )
     
+    def _map_auto_install_action(self, step: Dict[str, Any], cli_params: Dict[str, Any]) -> Tuple[str, Callable]:
+        """映射自动化安装动作"""
+        keywords = step.get("keywords")
+        finish_keywords = step.get("finish_keywords")
+        max_retries = step.get("max_retries", 30)
+        interval = step.get("interval", 2.0)
+        
+        description = step.get("description", "执行自动化安装流程")
+        
+        return (
+            description,
+            lambda: auto_install_action(
+                keywords=keywords,
+                finish_keywords=finish_keywords,
+                max_retries=max_retries,
+                interval=interval
+            )
+        )
+
