@@ -297,6 +297,7 @@ class ActionTypes:
     KEYBOARD = "keyboard"
     SCREENSHOT = "screenshot"
     OUTPUT = "output"
+    AUTO_INSTALL = "auto_install"
 
 
 # ==== 窗口操作类型 ====
@@ -379,3 +380,29 @@ class ModuleConfig:
     
     # 特殊版本标识
     LANJUN_VERSION = "lanjun"
+
+
+# ==== 自动化安装配置 ====
+class AutoInstallConfig:
+    """自动化安装相关常量"""
+    # 默认点击关键词列表
+    DEFAULT_CLICK_KEYWORDS = [
+        "yes", "ok", "accept", "next", "install", "run", "agree", 
+        "enable", "retry", "continue", "connect", "unzip", "open", 
+        "finish", "end", "allow access", "ja", "weiter", "akzeptieren", 
+        "starten", "fertig", "zustimmen", "ausfuehren", "einverstanden",
+        "是", "确定", "接受", "下一步", "安装", "运行", "同意", 
+        "启用", "重试", "继续", "连接", "解压", "打开", 
+        "完成", "结束", "允许访问"
+    ]
+    
+    # 默认结束关键词列表（点击这些按钮后认为安装结束）
+    DEFAULT_FINISH_KEYWORDS = [
+        "finish", "fertig", "close the program", "complete",
+        "完成", "结束", "关闭程序"
+    ]
+    
+    # 不点击的关键词列表（黑名单）
+    DONT_CLICK_KEYWORDS = [
+        "cancel", "don't", "do not", "abbrechen", "abbruch", "nicht"
+    ]

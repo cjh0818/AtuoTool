@@ -17,6 +17,7 @@ from typing import Tuple, Optional, List, Union, Dict, Any
 from core.match_image import match_image
 from utils.logger import logger
 from core.process_manager import ProcessManager
+from core.auto_installer import AutoInstaller
 from utils.util import clear_tool_cache, screenshot_decorator, get_program_directory
 from utils.exception_handler import ExceptionHandler, ElementNotFound, ProcessExecutionError, ResultParseError
 from config import (
@@ -666,5 +667,24 @@ def output_action(text: str, cli_params: Dict[str, Any] = None) -> bool:
         error_msg = f"输出反馈过程中发生错误: {str(e)}"
         logger.error(error_msg)
         raise ResultParseError(result_type="输出反馈", message=error_msg) from e
+
+
+@ExceptionHandler.handle_process_execution
+def auto_install_action(keywords=None, finish_keywords=None, max_retries=30, interval=2.0):
+    """
+    执行自动化安装操作
+    :param keywords: 点击关键词列表
+    :param finish_keywords: 结束关键词列表
+    :param max_retries: 最大重试次数
+    :param interval: 检测间隔
+    :return: 成功返回True，失败返回False
+    """
+    installer = AutoInstaller(
+        keywords=keywords,
+        finish_keywords=finish_keywords,
+        max_retries=max_retries,
+        interval=interval
+    )
+    return installer.start()
 
 
