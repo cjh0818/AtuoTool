@@ -17,7 +17,7 @@ from core.param_processor import ParamProcessor
 from core.action import (
     click_action, input_action, openAPP_action, window_minimize,
     window_maximize, text_output, image_output, screenshot_action,
-    keyboard_action, output_action, auto_install_action
+    keyboard_action, output_action, auto_install_action, wait_action
 )
 
 
@@ -37,6 +37,7 @@ class ActionMapper:
             ActionTypes.SCREENSHOT: self._map_screenshot_action,
             ActionTypes.OUTPUT: self._map_output_action,
             ActionTypes.AUTO_INSTALL: self._map_auto_install_action,
+            ActionTypes.WAIT: self._map_wait_action,
         }
     
     def map_action(self, step: Dict[str, Any], cli_params: Dict[str, Any], 
@@ -195,5 +196,15 @@ class ActionMapper:
                 max_retries=max_retries,
                 interval=interval
             )
+        )
+
+    def _map_wait_action(self, step: Dict[str, Any], cli_params: Dict[str, Any]) -> Tuple[str, Callable]:
+        """映射等待动作"""
+        duration = float(step.get("duration", 1.0))
+        description = step.get("description", f"等待 {duration} 秒")
+        
+        return (
+            description,
+            lambda: wait_action(duration)
         )
 

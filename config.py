@@ -298,6 +298,7 @@ class ActionTypes:
     SCREENSHOT = "screenshot"
     OUTPUT = "output"
     AUTO_INSTALL = "auto_install"
+    WAIT = "wait"
 
 
 # ==== 窗口操作类型 ====

@@ -189,11 +189,23 @@ model:
               click_offset: [0, 0]
 
       - position: ""
-        description: 自动化安装程序
-        action: auto_install
-        max_retries: 10
-        interval: 2.0
-        finish_keywords: ["finish", "完成"]
+        description: 等待5秒
+        action: wait
+        duration: 5.0
+
+      - position: ""
+        description: 判断是否有安装程序弹窗
+        action: recognize
+        mode: check_installer
+        step: continue
+        branch:
+          success:
+            - position: ""
+              description: 自动化安装程序
+              action: auto_install
+              max_retries: 20
+              interval: 2.0
+              finish_keywords: ["finish", "完成"]
 
     res_process:
       - position: ""

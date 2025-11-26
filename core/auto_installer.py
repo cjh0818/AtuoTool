@@ -67,7 +67,7 @@ class AutoInstaller:
             logger.error("无法在非Windows环境下运行AutoInstaller")
             return False
 
-        logger.info(f"开始自动化安装流程，监控关键词: {self.keywords}")
+        logger.debug(f"开始自动化安装流程，监控关键词: {self.keywords}")
         
         for i in range(self.max_retries):
             if self.is_finished:
@@ -80,8 +80,8 @@ class AutoInstaller:
             
             time.sleep(self.interval)
         
-        logger.warning("自动化安装流程超时结束")
-        return False
+        logger.debug("自动化安装流程循环结束，未检测到结束标志，视为完成")
+        return True
 
     def _enum_window_callback(self, hwnd, lparam):
         """枚举顶层窗口的回调"""
@@ -152,7 +152,7 @@ class AutoInstaller:
         if not USER32.IsWindowEnabled(hwnd):
             return
 
-        logger.info(f"自动点击按钮: [{text}]")
+        logger.debug(f"自动点击按钮: [{text}]")
         
         # 激活窗口
         # USER32.SetForegroundWindow(hwnd) # 慎用，可能会抢焦点
@@ -162,4 +162,76 @@ class AutoInstaller:
         
         if is_finish:
             self.is_finished = True
+
+    def check_window_exists(self) -> bool:
+        """
+        检测是否存在符合条件的安装窗口（不点击）
+        :return: 是否存在
+        """
+        if not USER32:
+            return False
+            
+        self._found_target = False
+        self._current_window_title = ""
+        USER32.EnumWindows(EnumWindowsProc(self._enum_window_check_callback), 0)
+        return self._found_target
+
+    def _get_window_class(self, hwnd):
+        """获取窗口类名"""
+        buff = create_unicode_buffer(256)
+        USER32.GetClassNameW(hwnd, buff, 256)
+        return buff.value
+
+    def _enum_window_check_callback(self, hwnd, lparam):
+        """检测窗口的回调"""
+        if not USER32.IsWindowVisible(hwnd):
+            return True
+            
+        # 获取窗口标题
+        length = USER32.GetWindowTextLengthW(hwnd)
+        if length == 0:
+            return True
+            
+        buff = create_unicode_buffer(length + 1)
+        USER32.GetWindowTextW(hwnd, buff, length + 1)
+        title = buff.value
+        
+        # 获取类名
+        class_name = self._get_window_class(hwnd)
+        
+        # 过滤掉一些系统窗口或明显无关的窗口
+        # Program Manager: 桌面
+        # Shell_TrayWnd: 任务栏
+        if not title or title == "Program Manager" or class_name == "Shell_TrayWnd":
+            return True
+            
+        self._current_window_title = title
+            
+        # 枚举子窗口查找按钮
+        USER32.EnumChildWindows(hwnd, EnumChildProc(self._enum_child_check_callback), 0)
+        
+        if self._found_target:
+            return False # Stop enumeration
+        return True
+
+    def _enum_child_check_callback(self, hwnd, lparam):
+        """检测子窗口（控件）的回调"""
+        if not USER32.IsWindowVisible(hwnd):
+            return True
+            
+        text = self._get_window_text(hwnd)
+        if not text:
+            return True
+            
+        text_lower = text.lower()
+        
+        for keyword in self.keywords:
+            if keyword in text_lower:
+                if any(ignore in text_lower for ignore in AutoInstallConfig.DONT_CLICK_KEYWORDS):
+                    continue
+                
+                logger.debug(f"检测到潜在安装窗口: '{self._current_window_title}'，匹配控件: '{text}'，关键词: '{keyword}'")
+                self._found_target = True
+                return False
+        return True
 

@@ -57,6 +57,10 @@ class RecognitionExecutor:
         Returns:
             执行结果
         """
+        # 新增：支持check_installer模式
+        if self.step.get("mode") == "check_installer":
+            return self._check_installer()
+
         if not self.image_path:
             logger.warning("recognize_action缺少image_path参数，跳过识别")
             return True
@@ -67,6 +71,21 @@ class RecognitionExecutor:
         if is_recognized:
             return self._handle_recognition_success()
         else:
+            return self._handle_recognition_failure()
+    
+    def _check_installer(self) -> bool:
+        """检查安装窗口是否存在"""
+        from core.auto_installer import AutoInstaller
+        
+        keywords = self.step.get("keywords")
+        installer = AutoInstaller(keywords=keywords)
+        is_exists = installer.check_window_exists()
+        
+        if is_exists:
+            logger.debug("检测到安装窗口")
+            return self._handle_recognition_success()
+        else:
+            logger.debug("未检测到安装窗口")
             return self._handle_recognition_failure()
     
     def _handle_recognition_success(self) -> bool:

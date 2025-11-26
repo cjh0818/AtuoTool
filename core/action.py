@@ -685,3 +685,14 @@ def auto_install_action(keywords=None, finish_keywords=None, max_retries=30, int
     return installer.start()
 
 
+def wait_action(duration: float) -> bool:
+    """
+    等待指定时间
+    :param duration: 等待时间（秒）
+    :return: True
+    """
+    logger.info(f"等待 {duration} 秒...")
+    time.sleep(duration)
+    return True
+
+
