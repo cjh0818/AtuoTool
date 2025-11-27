@@ -88,6 +88,13 @@ class ActionMapper:
             )
         )
     
+    def _process_input_value(self, key: str, value: Any) -> Any:
+        """处理输入值，如果是sample_path且为压缩包，则解压并返回可执行文件路径"""
+        if key == "sample_path" and isinstance(value, str):
+            from utils.util import unzip_and_find_executable
+            return unzip_and_find_executable(value)
+        return value
+
     def _map_input_action(self, step: Dict[str, Any], cli_params: Dict[str, Any]) -> List[Tuple[str, Callable]]:
         """映射输入动作"""
         processor = ParamProcessor()
@@ -96,7 +103,7 @@ class ActionMapper:
             (
                 step.get("description", f"输入 {k}"),
                 lambda v=v, k=k, clear=step.get("clear", True), enter=step.get("enter", True):
-                    input_action(v, clear, enter, k)
+                    input_action(self._process_input_value(k, v), clear, enter)
             )
             for k, v in processor.override_params(step.get("param", {}), cli_params).items()
         ]

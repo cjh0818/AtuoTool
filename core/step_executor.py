@@ -17,7 +17,7 @@ from utils.exception_handler import (
     ExceptionHandler, ElementNotFound, BranchExecutionError, 
     ProcessExecutionError, ToolCrash
 )
-from utils.util import log_module_completion, unzip_downloaded_file
+from utils.util import log_module_completion
 from config import Timing, StepDescriptions, ConfigStructure
 
 
@@ -44,24 +44,13 @@ class StepExecutor:
         # 获取全局pause时间
         pause_time = self._get_pause_time(config)
         
-        # 存储可能需要解压的下载URL
-        download_url_to_unzip = None
-        
         for desc, func in steps:
             logger.debug(f"步骤开始: {desc}")
             
             try:
                 result = func()
                 
-                # 检查结果是否为元组，包含下载URL信息
-                if isinstance(result, tuple) and len(result) == 2:
-                    success, url = result
-                    if success and url:
-                        download_url_to_unzip = url
-                        logger.debug(f"检测到需要解压的下载URL: {url}")
-                    elif not success:
-                        raise ToolCrash(component="步骤执行器", message=f"步骤失败: {desc}")
-                elif result is False:
+                if result is False:
                     raise ToolCrash(component="步骤执行器", message=f"步骤失败: {desc}")
             except ElementNotFound as e:
                 self._handle_element_not_found(e, desc, config, module_name)
@@ -74,11 +63,6 @@ class StepExecutor:
             
             # 处理特定步骤的等待时间
             self._handle_step_wait_time(desc, pause_time)
-        
-        # 所有步骤执行完成后，如果有需要解压的下载URL，则执行解压操作
-        if download_url_to_unzip:
-            logger.debug("所有步骤执行完成，开始解压下载的zip文件")
-            self._unzip_file_after_download(download_url_to_unzip)
         
         # 功能执行完毕，打印完成日志
         log_module_completion(module_name, cli_params)
@@ -188,19 +172,4 @@ class StepExecutor:
             # 普通操作使用launch-pause间隔时间
             time.sleep(pause_time)
     
-    def _unzip_file_after_download(self, download_url):
-        """
-        在所有步骤执行完成后解压下载的zip文件
-        :param download_url: 下载的URL，用于提取文件名
-        :return: 成功返回True，失败返回False
-        """
-        try:
-            logger.debug("等待下载完成，准备解压文件")
-            # 等待下载完成（假设下载需要一定时间）
-            # time.sleep(15)  # 等待15秒，可根据实际情况调整
-            
-            # 执行解压操作
-            return unzip_downloaded_file(download_url)
-        except Exception as e:
-            logger.error(f"步骤执行器解压文件过程中发生错误: {str(e)}")
-            return False
+
