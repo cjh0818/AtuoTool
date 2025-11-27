@@ -60,6 +60,11 @@ class AutoInstaller:
         self.interval = interval
         self.clicked_buttons = set()  # 记录已点击的按钮，避免重复点击同一状态
         self.is_finished = False
+        self.no_button_found_count = 0
+        self.found_button_in_current_scan = False
+        self.install_started = False
+        # 定义表示开始安装的关键词，点击这些按钮后将延长无响应等待时间
+        self.install_keywords = ['install', 'update', 'upgrade', '安装', '升级']
 
     def start(self):
         """开始自动化安装流程"""
@@ -69,14 +74,31 @@ class AutoInstaller:
 
         logger.debug(f"开始自动化安装流程，监控关键词: {self.keywords}")
         
+        self.no_button_found_count = 0
+        
         for i in range(self.max_retries):
             if self.is_finished:
                 logger.info("检测到结束标志，自动化安装流程完成")
                 return True
             
+            self.found_button_in_current_scan = False
             logger.debug(f"自动化安装扫描中... ({i+1}/{self.max_retries})")
             # 枚举所有顶层窗口
             USER32.EnumWindows(EnumWindowsProc(self._enum_window_callback), 0)
+            
+            # 检查本轮扫描是否发现匹配按钮
+            if not self.found_button_in_current_scan:
+                self.no_button_found_count += 1
+                
+                # 如果已经开始安装，容忍度更高（例如从10次增加到30次）
+                # 这样可以避免安装过程中界面无变化（或无匹配关键词）导致提前终止
+                threshold = 30 if self.install_started else 10
+                
+                if self.no_button_found_count >= threshold:
+                    logger.info(f"连续{threshold}次扫描未发现任何匹配按钮，判定安装过程已结束或无响应，终止扫描")
+                    break
+            else:
+                self.no_button_found_count = 0
             
             time.sleep(self.interval)
         
@@ -148,6 +170,15 @@ class AutoInstaller:
         """点击按钮"""
         # 简单的去重逻辑：如果短时间内已经点击过完全相同的句柄和文本，可以跳过
         # 但考虑到安装步骤可能需要多次点击"Next"，这里不做严格去重，而是依赖循环间隔
+        
+        # 标记本轮扫描发现了匹配按钮
+        self.found_button_in_current_scan = True
+        
+        # 检查是否点击了开始安装类的按钮
+        text_lower = text.lower()
+        if not self.install_started and any(k in text_lower for k in self.install_keywords):
+            self.install_started = True
+            logger.debug(f"检测到安装开始按钮点击: [{text}]，将延长无响应等待时间")
         
         if not USER32.IsWindowEnabled(hwnd):
             return

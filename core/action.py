@@ -84,26 +84,15 @@ def click_action(image_path, confidence=0.8, click_offset=(0, 0), click_flag="le
 
 
 @screenshot_decorator(screenshot_dir="screenshots/process_image")
-def input_action(command, clear=True, enter=True, param_name=None):
+def input_action(command, clear=True, enter=True):
     """
     模拟键盘输入命令
     :param command: 输入的命令字符串
     :param clear: 是否先清空输入框
     :param enter: 是否在输入后按回车键，默认为True
-    :param param_name: 参数名称，用于识别是否为down_url参数
-    :return: 成功返回(True, download_url)，失败返回(False, None)
+    :return: 成功返回True，失败返回False
     """
     try:
-        # 检查是否为down_url参数，并且文件扩展名为zip
-        is_down_url = param_name == "down_url"
-        is_zip_file = is_down_url and (command.lower().endswith('.zip') or command.lower().endswith('.7z'))
-        
-        # 保存下载URL信息，用于后续可能的解压操作
-        download_url = None
-        if is_down_url:
-            download_url = command
-            logger.debug(f"检测到down_url参数: {download_url}")
-        
         if clear:
             pyautogui.hotkey('ctrl', 'a')
             pyautogui.press('backspace')
@@ -145,11 +134,11 @@ def input_action(command, clear=True, enter=True, param_name=None):
         else:
             logger.debug(f"已输入命令（未按回车）: {command[:100]}{'...' if len(command) > 100 else ''}")
         
-        # 返回执行结果和下载URL（如果需要解压）
-        return True, download_url if is_zip_file else None
+        # 返回执行结果
+        return True
     except Exception as e:
         logger.error(f"输入命令失败: {str(e)}")
-        return False, None
+        return False
 
 
 @screenshot_decorator(screenshot_dir="screenshots/process_image")

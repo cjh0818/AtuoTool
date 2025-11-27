@@ -21,6 +21,7 @@ import urllib.parse
 import py7zr
 import shutil
 import tempfile
+import subprocess
 from datetime import datetime
 from typing import Dict, Any, Optional, List, Callable
 
@@ -480,6 +481,198 @@ def log_module_completion(module_name: Optional[str], cli_params: Optional[Dict[
     logger.info(completion_message)
 
 
+
+def unzip_and_find_executable(file_path: str) -> str:
+    """
+    解压文件并查找可执行文件
+    :param file_path: 压缩文件路径
+    :return: 可执行文件路径，如果未找到或不是压缩文件则返回原路径
+    """
+    if not file_path or not os.path.exists(file_path):
+        return file_path
+        
+    lower_path = file_path.lower()
+    if not (lower_path.endswith('.zip') or lower_path.endswith('.7z')):
+        return file_path
+        
+    # 获取文件名（不含扩展名）作为解压目录名
+    file_name_no_ext = os.path.splitext(os.path.basename(file_path))[0]
+    # 获取父目录
+    parent_dir = os.path.dirname(file_path)
+    # 拼接解压目录路径：C:/Users/admin/Downloads/zip解压后目录/
+    extract_dir = os.path.join(parent_dir, file_name_no_ext)
+    
+    # 确保解压目录存在
+    if not os.path.exists(extract_dir):
+        os.makedirs(extract_dir)
+    
+    logger.info(f"开始解压样本文件: {file_path} 到 {extract_dir}")
+    
+    try:
+        # 优先尝试使用 7-Zip 命令行解压（性能最佳）
+        if not _try_unzip_with_command(file_path, extract_dir):
+            # 回退到 Python 库解压
+            if lower_path.endswith('.zip'):
+                _unzip_zip_file(file_path, extract_dir)
+            else:
+                _unzip_7z_file(file_path, extract_dir)
+            
+        # 查找可执行文件
+        executable_extensions = ['.exe', '.msi', '.lnk']
+        found_executable = None
+        
+        # 遍历解压目录查找
+        for root, dirs, files in os.walk(extract_dir):
+            for file in files:
+                ext = os.path.splitext(file)[1].lower()
+                if ext in executable_extensions:
+                    found_executable = os.path.join(root, file)
+                    break
+            if found_executable:
+                break
+                
+        if found_executable:
+            # 规范化路径分隔符
+            found_executable = os.path.normpath(found_executable)
+            logger.info(f"找到可执行文件: {found_executable}")
+            return found_executable
+        else:
+            logger.warning("在压缩包中未找到可执行文件(.exe/.msi/.lnk)")
+            return file_path
+            
+    except Exception as e:
+        logger.error(f"解压或查找可执行文件失败: {e}")
+        return file_path
+
+
+def _try_unzip_with_command(file_path: str, extract_dir: str) -> bool:
+    """
+    尝试使用系统安装的 7-Zip 命令行进行解压（速度远快于 Python 库）
+    :param file_path: 压缩文件路径
+    :param extract_dir: 解压目标目录
+    :return: 是否成功
+    """
+    # 常见 7-Zip 安装路径
+    seven_zip_paths = [
+        r"C:\Program Files\7-Zip\7z.exe",
+        r"C:\Program Files (x86)\7-Zip\7z.exe",
+    ]
+    
+    seven_zip_exe = None
+    # 检查环境变量
+    if shutil.which("7z"):
+        seven_zip_exe = "7z"
+    else:
+        # 检查常见安装路径
+        for path in seven_zip_paths:
+            if os.path.exists(path):
+                seven_zip_exe = path
+                break
+    
+    if not seven_zip_exe:
+        return False
+        
+    try:
+        logger.debug(f"尝试使用 7-Zip 命令行解压: {seven_zip_exe}")
+        # 7z x "archive.zip" -o"C:\out" -y -aoa
+        # -x: 完整路径解压
+        # -o: 输出目录 (注意-o后面紧跟路径，无空格)
+        # -y: 自动确认所有提示
+        # -aoa: 覆盖所有文件
+        cmd = [seven_zip_exe, "x", file_path, f"-o{extract_dir}", "-y", "-aoa"]
+        
+        # 隐藏命令行窗口
+        startupinfo = None
+        if os.name == 'nt':
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            
+        subprocess.check_call(cmd, startupinfo=startupinfo, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        logger.info(f"使用 7-Zip 命令行成功解压: {file_path}")
+        return True
+    except Exception as e:
+        logger.warning(f"7-Zip 命令行解压尝试失败，将回退到 Python 库: {e}")
+        return False
+
+
+def _unzip_zip_file(zip_file_path, downloads_dir):
+    """
+    解压zip文件到指定目录，保留压缩包原有的目录结构
+    :param zip_file_path: zip文件路径
+    :param downloads_dir: 目标目录
+    """
+    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+        # 遍历zip文件中的所有文件和目录
+        for file_info in zip_ref.infolist():
+            # 处理文件名编码，解决中文乱码问题
+            decoded_filename = _decode_filename(file_info.filename)
+            
+            # 构建完整的目标路径，保留目录结构
+            target_path = os.path.join(downloads_dir, decoded_filename)
+            
+            # 如果是目录，创建目录
+            if file_info.filename.endswith('/'):
+                _prepare_target_path(target_path, is_dir=True)
+            else:
+                if _prepare_target_path(target_path, is_dir=False):
+                    # 提取文件（使用流式复制，避免大文件占用过多内存）
+                    with zip_ref.open(file_info) as source_file, open(target_path, 'wb') as target_file:
+                        shutil.copyfileobj(source_file, target_file)
+                    logger.debug(f"已提取文件: {target_path}")
+
+
+def _unzip_7z_file(archive_file_path, downloads_dir):
+    """
+    解压7z文件到指定目录，保留压缩包原有的目录结构
+    :param archive_file_path: 7z文件路径
+    :param downloads_dir: 目标目录
+    """
+    try:
+        # 使用py7zr库的正确方法：直接解压所有文件到目标目录
+        with py7zr.SevenZipFile(archive_file_path, mode='r') as archive:
+            # 首先解压到一个临时目录
+            with tempfile.TemporaryDirectory() as temp_dir:
+                logger.debug(f"创建临时解压目录: {temp_dir}")
+                
+                # 解压所有文件到临时目录
+                archive.extractall(temp_dir)
+                logger.debug(f"已解压文件到临时目录: {temp_dir}")
+                
+                # 遍历临时目录中的所有文件
+                for root, dirs, files in os.walk(temp_dir):
+                    # 处理所有目录，确保目录结构存在
+                    for dir_name in dirs:
+                        relative_path = os.path.relpath(os.path.join(root, dir_name), temp_dir)
+                        target_path = os.path.join(downloads_dir, relative_path)
+                        if not os.path.exists(target_path):
+                            os.makedirs(target_path, exist_ok=True)
+                            logger.debug(f"已创建目录: {target_path}")
+
+                    # 处理所有文件
+                    for file_name in files:
+                        file_path = os.path.join(root, file_name)
+                        
+                        # 处理文件名编码，解决中文乱码问题
+                        decoded_filename = _decode_filename(file_name)
+                        
+                        # 获取相对路径
+                        relative_dir_path = os.path.relpath(root, temp_dir)
+                        if relative_dir_path == '.':
+                            relative_dir_path = ''
+                        
+                        # 构建目标路径
+                        target_path = os.path.join(downloads_dir, relative_dir_path, decoded_filename)
+                        
+                        if _prepare_target_path(target_path, is_dir=False):
+                            # 移动文件到目标位置（比复制更快，尤其是在同一分区）
+                            shutil.move(file_path, target_path)
+                            logger.debug(f"已提取文件: {target_path}")
+
+    except ImportError:
+        logger.error("缺少py7zr库，无法解压7z文件。请运行: pip install py7zr")
+        raise
+
+
 def _decode_filename(filename: str) -> str:
     """
     尝试修复乱码文件名
@@ -532,121 +725,3 @@ def _prepare_target_path(target_path: str, is_dir: bool = False) -> bool:
     except Exception as e:
         logger.error(f"准备目标路径失败: {target_path}, {e}")
         return False
-
-
-def unzip_downloaded_file(download_url):
-    """
-    解压下载的压缩文件到指定目录，保留压缩包原有的目录结构
-    支持zip和7z格式，处理中文文件名或中文文件夹名的乱码问题
-    
-    :param download_url: 下载的URL，用于提取文件名
-    :return: 成功返回True，失败返回False
-    """
-    try:
-        # 从URL中提取文件名
-        parsed_url = urllib.parse.urlparse(download_url)
-        file_name = os.path.basename(parsed_url.path)
-        
-        # 使用指定的下载目录
-        downloads_dir = "C:/Users/admin/Downloads/"
-        archive_file_path = os.path.join(downloads_dir, file_name)
-        
-        # 检查文件是否存在
-        if not os.path.exists(archive_file_path):
-            logger.warning(f"未找到下载的压缩文件: {archive_file_path}")
-            return False
-        
-        logger.debug(f"开始解压文件: {archive_file_path}")
-        
-        # 根据文件扩展名选择解压方法
-        if file_name.lower().endswith('.zip'):
-            _unzip_zip_file(archive_file_path, downloads_dir)
-        elif file_name.lower().endswith('.7z'):
-            _unzip_7z_file(archive_file_path, downloads_dir)
-        else:
-            logger.error(f"不支持的压缩格式: {file_name}")
-            return False
-        
-        logger.info(f"成功解压文件到: {downloads_dir}")
-        return True
-    except Exception as e:
-        logger.error(f"解压文件失败: {str(e)}")
-        return False
-
-
-def _unzip_zip_file(zip_file_path, downloads_dir):
-    """
-    解压zip文件到指定目录，保留压缩包原有的目录结构
-    :param zip_file_path: zip文件路径
-    :param downloads_dir: 目标目录
-    """
-    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-        # 遍历zip文件中的所有文件和目录
-        for file_info in zip_ref.infolist():
-            # 处理文件名编码，解决中文乱码问题
-            decoded_filename = _decode_filename(file_info.filename)
-            
-            # 构建完整的目标路径，保留目录结构
-            target_path = os.path.join(downloads_dir, decoded_filename)
-            
-            # 如果是目录，创建目录
-            if file_info.filename.endswith('/'):
-                _prepare_target_path(target_path, is_dir=True)
-            else:
-                if _prepare_target_path(target_path, is_dir=False):
-                    # 提取文件
-                    with open(target_path, 'wb') as extracted_file:
-                        extracted_file.write(zip_ref.read(file_info.filename))
-                    logger.debug(f"已提取文件: {target_path}")
-
-
-def _unzip_7z_file(archive_file_path, downloads_dir):
-    """
-    解压7z文件到指定目录，保留压缩包原有的目录结构
-    :param archive_file_path: 7z文件路径
-    :param downloads_dir: 目标目录
-    """
-    try:
-        # 使用py7zr库的正确方法：直接解压所有文件到目标目录
-        with py7zr.SevenZipFile(archive_file_path, mode='r') as archive:
-            # 首先解压到一个临时目录
-            with tempfile.TemporaryDirectory() as temp_dir:
-                logger.debug(f"创建临时解压目录: {temp_dir}")
-                
-                # 解压所有文件到临时目录
-                archive.extractall(temp_dir)
-                logger.debug(f"已解压文件到临时目录: {temp_dir}")
-                
-                # 遍历临时目录中的所有文件
-                for root, dirs, files in os.walk(temp_dir):
-                    # 处理所有目录，确保目录结构存在
-                    for dir_name in dirs:
-                        relative_path = os.path.relpath(os.path.join(root, dir_name), temp_dir)
-                        target_path = os.path.join(downloads_dir, relative_path)
-                        if not os.path.exists(target_path):
-                            os.makedirs(target_path, exist_ok=True)
-                            logger.debug(f"已创建目录: {target_path}")
-
-                    # 处理所有文件
-                    for file_name in files:
-                        file_path = os.path.join(root, file_name)
-                        
-                        # 处理文件名编码，解决中文乱码问题
-                        decoded_filename = _decode_filename(file_name)
-                        
-                        # 获取相对路径
-                        relative_dir_path = os.path.relpath(root, temp_dir)
-                        if relative_dir_path == '.':
-                            relative_dir_path = ''
-                        
-                        # 构建目标路径
-                        target_path = os.path.join(downloads_dir, relative_dir_path, decoded_filename)
-                        
-                        if _prepare_target_path(target_path, is_dir=False):
-                            # 复制文件到目标位置
-                            shutil.copy2(file_path, target_path)
-                            logger.debug(f"已提取文件: {target_path}")
-
-    except ImportError:
-        logger.error("缺少py7zr库，无法解压7z文件。请运行: pip install py7zr")
-        raise

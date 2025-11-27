@@ -174,7 +174,7 @@ model:
         description: 输入文件所在路径
         action: input
         param:
-          file_path: "C:/Users/admin/Downloads/Sandboxie.exe"
+          sample_path: "C:/Users/admin/Downloads/Sandboxie.exe"
 
       - position: "images/win_10/run_sample/run_btn.png"
         description: 判断是否有安全告警弹窗
