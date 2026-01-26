@@ -517,19 +517,40 @@ def unzip_and_find_executable(file_path: str) -> str:
             else:
                 _unzip_7z_file(file_path, extract_dir)
             
+        return find_executable_in_directory(extract_dir, file_path)
+            
+    except Exception as e:
+        logger.error(f"解压或查找可执行文件失败: {e}")
+        return file_path
+
+
+def find_executable_in_directory(extract_dir: str, original_file_path: str) -> str:
+    """
+    在指定目录中查找可执行文件
+    :param extract_dir: 查找目录
+    :param original_file_path: 原始文件路径（用于未找到时返回）
+    :return: 可执行文件路径
+    """
+    try:
         # 查找可执行文件
         executable_extensions = ['.exe', '.msi', '.lnk']
         found_executable = None
+        candidates = []
         
-        # 遍历解压目录查找
+        # 遍历解压目录查找所有候选文件
         for root, dirs, files in os.walk(extract_dir):
             for file in files:
                 ext = os.path.splitext(file)[1].lower()
                 if ext in executable_extensions:
-                    found_executable = os.path.join(root, file)
-                    break
-            if found_executable:
-                break
+                    candidates.append(os.path.join(root, file))
+        
+        # 优先选择 .lnk 文件
+        if candidates:
+            lnk_files = [f for f in candidates if f.lower().endswith('.lnk')]
+            if lnk_files:
+                found_executable = lnk_files[0]
+            else:
+                found_executable = candidates[0]
                 
         if found_executable:
             # 规范化路径分隔符
@@ -538,11 +559,10 @@ def unzip_and_find_executable(file_path: str) -> str:
             return found_executable
         else:
             logger.warning("在压缩包中未找到可执行文件(.exe/.msi/.lnk)")
-            return file_path
-            
+            return original_file_path
     except Exception as e:
-        logger.error(f"解压或查找可执行文件失败: {e}")
-        return file_path
+        logger.error(f"查找可执行文件失败: {e}")
+        return original_file_path
 
 
 def _try_unzip_with_command(file_path: str, extract_dir: str) -> bool:

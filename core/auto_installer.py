@@ -159,6 +159,14 @@ class AutoInstaller:
 
     def _get_window_text(self, hwnd):
         """获取窗口/控件文本"""
+        # 过滤掉非按钮类控件，防止将标签文本误判为按钮
+        # Static: 静态文本、图标等，通常包含结束语如 "Installation Finished"
+        # Edit/RichEdit: 文本框，常用于显示安装协议，可能包含关键词
+        # ToolbarWindow32: 工具栏，资源管理器地址栏等
+        class_name = self._get_window_class(hwnd).lower()
+        if "static" in class_name or "edit" in class_name or "toolbar" in class_name:
+            return ""
+
         length = USER32.SendMessageW(hwnd, WM_GETTEXTLENGTH, 0, 0)
         if length == 0:
             return ""
@@ -193,6 +201,7 @@ class AutoInstaller:
         
         if is_finish:
             self.is_finished = True
+            logger.info(f"点击了结束按钮: [{text}]，标记安装流程为结束状态")
 
     def check_window_exists(self) -> bool:
         """

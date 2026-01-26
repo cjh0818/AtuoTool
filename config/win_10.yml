@@ -108,11 +108,28 @@ model:
         keys: "win,d"
         action_type: "hotkey"
 
-      - position: "images/win_10/edge_down/edge_icon.png"
-        description: 运行edge浏览器
+      - position: ""
+        description: 点击win + R调用系统输入框
+        action: keyboard
+        keys: "win,r"
+        action_type: "hotkey"
+
+      - position: "images/win_10/run_sample/open_label.png"
+        description: 点击输入框
         action: click
-        click_button: double
-        click_offset: [0, 0]
+        click_button: left
+        click_offset: [30, -10]
+
+      - position: ""
+        description: 快捷启动edge浏览器
+        action: input
+        param:
+          sample_path: "msedge"
+
+      - position: ""
+        description: 等待3.5秒
+        action: wait
+        duration: 3.5
 
       - position: "images/win_10/edge_down/search_label.png"
         description: 点击访问url输入框
@@ -176,22 +193,10 @@ model:
         param:
           sample_path: "C:/Users/admin/Downloads/Sandboxie.exe"
 
-      - position: "images/win_10/run_sample/run_btn.png"
-        description: 判断是否有安全告警弹窗
-        action: recognize
-        step: continue
-        branch:
-          success:
-            - position: "images/win_10/run_sample/run_btn.png"
-              description: 点击【运行】按钮
-              action: click
-              click_button: left
-              click_offset: [0, 0]
-
       - position: ""
-        description: 等待5秒
+        description: 等待10秒
         action: wait
-        duration: 5.0
+        duration: 10
 
       - position: ""
         description: 判断是否有安装程序弹窗
@@ -203,9 +208,8 @@ model:
             - position: ""
               description: 自动化安装程序
               action: auto_install
-              max_retries: 20
+              max_retries: 78
               interval: 2.0
-              finish_keywords: ["finish", "完成"]
 
     res_process:
       - position: ""

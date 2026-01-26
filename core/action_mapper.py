@@ -89,24 +89,85 @@ class ActionMapper:
         )
     
     def _process_input_value(self, key: str, value: Any) -> Any:
-        """处理输入值，如果是sample_path且为压缩包，则解压并返回可执行文件路径"""
-        if key == "sample_path" and isinstance(value, str):
-            from utils.util import unzip_and_find_executable
-            return unzip_and_find_executable(value)
+        """处理输入值"""
         return value
 
     def _map_input_action(self, step: Dict[str, Any], cli_params: Dict[str, Any]) -> List[Tuple[str, Callable]]:
         """映射输入动作"""
         processor = ParamProcessor()
         
-        return [
-            (
-                step.get("description", f"输入 {k}"),
-                lambda v=v, k=k, clear=step.get("clear", True), enter=step.get("enter", True):
-                    input_action(self._process_input_value(k, v), clear, enter)
-            )
-            for k, v in processor.override_params(step.get("param", {}), cli_params).items()
-        ]
+        actions = []
+        for k, v in processor.override_params(step.get("param", {}), cli_params).items():
+            # 检查是否是sample_path且为压缩包
+            if k == "sample_path" and isinstance(v, str) and (v.lower().endswith('.zip') or v.lower().endswith('.7z')):
+                # 获取父目录作为解压目录
+                # 简单处理路径分隔符
+                if '/' in v:
+                    parent_dir = v.rsplit('/', 1)[0] + '/'
+                elif '\\' in v:
+                    parent_dir = v.rsplit('\\', 1)[0] + '\\'
+                else:
+                    parent_dir = ""
+                
+                # 构建解压命令
+                # "C:\Program Files\7-Zip\7z.exe" x "{v}" -o"{parent_dir}" -y
+                unzip_cmd = f'"C:\\Program Files\\7-Zip\\7z.exe" x "{v}" -o"{parent_dir}" -y'
+                
+                # 1. 输入解压命令
+                actions.append((
+                    f"输入解压命令: {unzip_cmd}",
+                    lambda cmd=unzip_cmd: input_action(cmd, clear=True, enter=True)
+                ))
+                
+                # 2. 等待5秒
+                actions.append((
+                    "等待解压完成(5s)",
+                    lambda: wait_action(5.0)
+                ))
+                
+                # 3. 重新打开运行窗口 (Win+R)
+                actions.append((
+                    "重新打开运行窗口(Win+R)",
+                    lambda: keyboard_action("win,r")
+                ))
+
+                # 2. 等待2秒
+                actions.append((
+                    "打开运行窗口",
+                    lambda: wait_action(2.0)
+                ))
+                
+                # 4. 点击输入框
+                actions.append((
+                    "点击运行窗口输入框",
+                    lambda: click_action(
+                        "images/win_10/run_sample/open_label.png",
+                        click_offset=(30, -10),
+                        click_flag="left"
+                    )
+                ))
+                
+                # 5. 输入原始路径 (查找解压后的可执行文件)
+                def get_executable_path(zip_path):
+                    import os
+                    from utils.util import find_executable_in_directory
+                    # extract_dir 设置为 zip_path 的父目录 (例如 C:/Users/admin/Downloads/)
+                    extract_dir = os.path.dirname(zip_path)
+                    return find_executable_in_directory(extract_dir, zip_path)
+
+                actions.append((
+                    step.get("description", f"输入 {k}"),
+                    lambda val=v, clear=step.get("clear", True), enter=step.get("enter", True):
+                        input_action(get_executable_path(val), clear, enter)
+                ))
+            else:
+                actions.append((
+                    step.get("description", f"输入 {k}"),
+                    lambda v=v, k=k, clear=step.get("clear", True), enter=step.get("enter", True):
+                        input_action(self._process_input_value(k, v), clear, enter)
+                ))
+                
+        return actions
     
     def _map_res_action(self, step: Dict[str, Any], cli_params: Dict[str, Any]) -> Tuple[str, Callable]:
         """映射结果输出动作"""
