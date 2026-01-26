@@ -101,6 +101,8 @@ model:
 
   - name: edge_down
     description: 浏览器下载文件
+    retry: true
+    max_retry_count: 1
     process:
       - position: ""
         description: 点击win + D显示桌面

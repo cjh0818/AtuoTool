@@ -14,13 +14,14 @@ import yaml
 import argparse
 import os
 import sys
+import time
 from typing import Dict, Any, Optional
 
 from utils.logger import logger, set_log_level
 from utils.help_info import show_all_modules_help, show_main_help, show_module_help
 from utils.exception_handler import ExceptionHandler, ToolCrash
 from utils.util import get_config_file_path
-from config import CLIConfig, ConfigStructure
+from config import CLIConfig, ConfigStructure, Timing
 from core.step_parser import StepParser
 from core.step_executor import StepExecutor
 
@@ -55,8 +56,36 @@ class AutoToolApp:
         
         # 解析并执行步骤
         logger.info(f"Autotool 工具开始执行 - 工具: {args.tool}, 版本: {args.version}, 模块: {args.module}")
+        
+        # 获取当前运行模块的重试配置
+        retry_enabled = False
+        max_retries = 0
+        
+        if ConfigStructure.MODEL_KEY in config:
+            for model in config[ConfigStructure.MODEL_KEY]:
+                if model.get(ConfigStructure.NAME_KEY) == args.module:
+                    retry_enabled = model.get("retry", False)
+                    max_retries = model.get("max_retry_count", 0)
+                    break
+        
         steps = self.parser.parse_yaml_steps(config, args.module, cli_params)
-        self.executor.execute_steps(steps, config, args.module, cli_params)
+        
+        retry_count = 0
+        while True:
+            if retry_count > 0:
+                logger.info(f"正在进行第 {retry_count}/{max_retries} 次重试...")
+                
+            result = self.executor.execute_steps(steps, config, args.module, cli_params)
+            
+            if result:
+                break
+                
+            if retry_enabled and retry_count < max_retries:
+                retry_count += 1
+                logger.warning(f"模块执行失败，将在 {Timing.DEFAULT_PAUSE} 秒后重试...")
+                time.sleep(Timing.DEFAULT_PAUSE)
+            else:
+                break
     
     def _should_show_help(self) -> bool:
         """检查是否应该显示帮助信息"""
